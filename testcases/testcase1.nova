@@ -1,7 +1,8 @@
-var demo int = 23;
+var num int  = 23;
+var temp string = "Hello, World!";
 
-fn print_num(int num){
+fn printNum(int num){
     println(num);
 };
 
-print_num(123);
+printNum(123);
