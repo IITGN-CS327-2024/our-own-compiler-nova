@@ -1,0 +1,8 @@
+var num int  = 23;
+var temp string = "Hello, World!";
+
+fn printSlice(string word){
+    println(word[1:3]);
+};
+
+printSlice(temp);
