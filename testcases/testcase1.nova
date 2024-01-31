@@ -1,0 +1,7 @@
+var demo int = 23;
+
+fn print_num(int num){
+    println(num);
+};
+
+print_num(123);
