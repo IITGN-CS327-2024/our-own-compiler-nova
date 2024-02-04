@@ -201,7 +201,7 @@ return <value>;
 ```
 
 ```
-fn compute_sum(int num1, int num2){
+fn computeSum(int num1, int num2){
    var int sum = num1 + num2;
    return sum;
 };
