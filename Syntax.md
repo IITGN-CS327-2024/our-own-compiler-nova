@@ -302,3 +302,59 @@ catch(e) {
 Syntax for throw:  
 
 `throw errorType;`
+
+## Built-in Exception Types
+Nova provides a set of built-in exception types that can be caught in catch blocks. These include :
+#### 1. TypeError
+
+The `TypeError` is thrown when an operation is performed on an object of an inappropriate type.
+
+**Example:**
+
+```nova
+var string result = "Hello" + 42; // Concatenating a string with a number
+```
+`Error: Type mismatch - concatenation not allowed`
+
+#### 2. DivisionByZeroError
+The DivisionByZeroError is thrown when attempting to divide a number by zero.
+
+**Example:**
+
+```nova
+var int result = 10 / 0; // Attempting to divide by zero
+```
+`Error: Division by zero`
+
+#### 3. SyntaxError
+
+The `SyntaxError` is thrown when the code violates the language's syntax rules.
+
+**Example:**
+
+```nova
+var int x = 10
+// Missing semicolon at the end of the statement
+```
+
+`Error: Syntax error, expected ';'`
+
+#### 4. NameError
+The NameError is thrown when attempting to use a variable or function that is not defined.
+
+```nova
+print(undefinedVariable); 
+// printing a variable that was not defined above
+```
+`Error: NameError, undefinedVariable is not defined`
+
+#### 5. IndexError
+The IndexError is thrown when attempting to access an index that is outside the bounds of a data structure, such as an array or list.
+
+```nova
+var array int myList = [1, 2, 3];
+print(myList[5]); // Accessing an index beyond the list size
+```
+`Error: IndexError, Index out of bounds`
+
+As of now, custom errors are not being implemented as datatypes. We may add this functionality if required and time permits.
