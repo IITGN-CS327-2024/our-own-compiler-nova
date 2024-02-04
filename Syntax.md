@@ -14,9 +14,9 @@ could be extended to float to store floating point numbers such as 1.04, but as 
 There are only two types- true, false
 
 ### Variable Declaration:  
-Variables in Nova can be declared using the var keyword followed by the declaration of the type(int, string, bool) and its name. One thing to note: it is also necessary to initialise the variable, and once a variable is declared, it cannot be redeclared in any of the scopes(same or child). By default, all the variables in Nova are mutable, but only the same type of values can be assigned if needed; otherwise, it will throw an error.  The default value of integer is 0, string is "" and that of bool is false.
+Variables in Nova can be declared using the var keyword followed by the declaration of the type(int, string, bool) and its name. One thing to note: it is also necessary to initialise the variable, and once a variable is declared, it cannot be redeclared in any of the scopes(same or child). By default, all the variables in Nova are mutable, but only the same type of values can be assigned if needed; otherwise, it will throw an error.  The default value of integer is 0, string is "" (i.e. and empty string) and that of bool is false.
 
-Variable Declaration Rules: Variable name comprises only of uppercase letters[A-Z], lowercase letters[a-z] and numbers[0-9]. Keywords can not be chosen as variable names.
+Variable Declaration Rules: Variable name comprises only uppercase letters[A-Z], lowercase letters[a-z] and numbers[0-9]. Keywords can not be chosen as variable names. Variable names should begin with alphabet. 
 
 `var <type> <variable_name> = <value>;`  
 
@@ -102,7 +102,7 @@ println(temp[4]);
 O/P- 7  
 
 ### Tuples:   
-Tuples are similar to arrays but with two constraints- these are immutable, and once declared, the size can’t be changed and that said, we have to explicitly put the values. All the syntax rules for tuples are same as those of arrays. 
+Tuples are similar to arrays but with two constraints- these are immutable, and once declared, the size can’t be changed and that said, we have to explicitly put the values. All the syntax rules for tuples are same as those for arrays. 
 
 `var tuple int temp = (5, 7, 3, 2);`  
 
@@ -182,10 +182,13 @@ x = x + 1;
 ```
 Nova also supports two additional keywords within the loops- break and continue. Whenever a break statement is executed, the loop containing the break statement is terminated. Continue statement is used to skip the current iteration.
 
-#### Print Statement:  
+### Print Statement:  
 A print statement in Nova would look like this, where println stands for “print line”.  
 
 `println(“Hello, World!”);`  
+
+### Comments:
+Comments in nove starts with "#" followed by the message/comment.
 
 ### Function:  
 To define any function in Nova Language, the syntax is as follows:  
@@ -194,6 +197,13 @@ To define any function in Nova Language, the syntax is as follows:
 fn <function_name>(parameters) {
 //function body  
 return <value>;
+};
+```
+
+```
+fn compute_sum(int num1, int num2){
+   var int sum = num1 + num2;
+   return sum;
 };
 ```
 
