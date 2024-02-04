@@ -37,10 +37,16 @@ def lexer(code : str, tokens : list):
 
     string_found = False
     collect_string = ""
+    comment_found = False
     for word in line:
+        if comment_found == True:
+            comment_found = False
+            break;
         cur_pos = 0
         temp = word
         while(cur_pos < len(temp)):
+            if comment_found == True:
+                break
             if word in whitespace or word in "\n":
                 continue
 
@@ -80,6 +86,9 @@ def lexer(code : str, tokens : list):
                 collect_string += word
                 cur_pos += len(word)
             #<---------------------string ends------------------------>
+
+            elif re.match(pattern="#", string=word):
+                comment_found = True
 
             elif re.match(pattern="0|[1-9][0-9]*", string=word):
                 match = re.match(pattern="0|[1-9][0-9]*", string=word)
@@ -196,7 +205,9 @@ def lexer(code : str, tokens : list):
                 cur_pos += len(endOfStream)
             else:
                 print("Token:", word)
-                raise Exception("Invalid token found")
+                tokens.append(["INVALID", word])
+                cur_pos += len(word)
+                # raise Exception("Invalid token found")
                 # cur_pos += 1e4
                 # pass
         
@@ -205,11 +216,13 @@ def lexer(code : str, tokens : list):
             word = temp[cur_pos:]
         
     if string_found == True:
-        raise Exception("String not closed")
+        # raise Exception("String not closed")
+        string_found = False
+        collect_string = ""
 
 
 tokens = []
-file_path = os.path.join("src", "..", "testcases", "testcase1.nova")
+file_path = os.path.join("src", "..", "testcases", "testcase5.nova")
 with open(file_path, "r") as code:
     for line in code:
         lexer(line, tokens)
