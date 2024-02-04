@@ -1,6 +1,6 @@
 # Nova Language
 ## General Syntax:  
-In Nova language, each statement must end with a semicolon(;), it can be a declaration of a variable, conditional statements, loops, print, and so on. Moreover, throughout the documentation, if something like <xyz> is encountered, then it is a placeholder where xyz specifies what it should be.
+In Nova language, each statement must end with a semicolon (; ), it can be a declaration of a variable, conditional statements, loops, print, and so on. Moreover, throughout the documentation, if something like <xyz> is encountered, then it is a placeholder where xyz specifies what it should be.
 
 ## Types:  
 Nova lang would support three types, namely numbers, booleans, and string. The numbers are defined as int, booleans as bool, and strings as string. Further, the number
@@ -14,7 +14,9 @@ could be extended to float to store floating point numbers such as 1.04, but as 
 There are only two types- true, false
 
 ### Variable Declaration:  
-Variables in Nova can be declared using the var keyword followed by the declaration of the type(int, string, bool) and its name. One thing to note: it is also necessary to initialise the variable, and once a variable is declared, it cannot be redeclared in any of the scopes(same or child). Any variable name can not begin by "_". By default, all the variables in Nova are mutable, but only the same type of values can be assigned if needed; otherwise, it will throw an error.  The default value of integer is 0, string is "" and that of bool is false.
+Variables in Nova can be declared using the var keyword followed by the declaration of the type(int, string, bool) and its name. One thing to note: it is also necessary to initialise the variable, and once a variable is declared, it cannot be redeclared in any of the scopes(same or child). By default, all the variables in Nova are mutable, but only the same type of values can be assigned if needed; otherwise, it will throw an error.  The default value of integer is 0, string is "" and that of bool is false.
+
+Variable Declaration Rules: Variable name comprises only of uppercase letters[A-Z], lowercase letters[a-z] and numbers[0-9]. Keywords can not be chosen as variable names.
 
 `var <type> <variable_name> = <value>;`  
 
@@ -233,7 +235,7 @@ Variables declared inside a `{ }` block with `var` are block scoped. They are on
 
 ``` 
 {
-  var x = 10;
+  var int x = 10;
   println(x); // x accessible
 }
 
@@ -246,7 +248,7 @@ Variables declared inside a function with `var` are function scoped - accessible
 
 ```
 fn foo(){
-   var y = 20;
+   var int y = 20;
    println(y); // y accessible
 } 
 
