@@ -1,4 +1,4 @@
-# Nova Lang
+# Nova Language
 ## General Syntax:  
 In Nova language, each statement must end with a semicolon(;), it can be a declaration of a variable, conditional statements, loops, print, and so on. Moreover, throughout the documentation, if something like <xyz> is encountered, then it is a placeholder where xyz specifies what it should be.
 
@@ -61,11 +61,11 @@ The output will be “TeaPost”.
 ### Arrays:  
 Arrays can be thought of as a collection of homogenous data types. In Nova, it can be declared in the same way as a variable using square brackets.  
 
-`var array temp = [5, 7, 3, 2];`  
+`var array int temp = [5, 7, 3, 2];`  
 
 Or  
 
-`var array(4) temp;`  
+`var array(4) int temp;`  
 
 Thus, there are two ways to declare an array one is to explicitly write each of the values, and the other is to specify the size which would result in initializing with 0’s.  
 
@@ -77,7 +77,7 @@ It supports four operations:
 - cons() : temp.cons(element) adds the element to the head of the sequence  
 
 ```
-var array temp = [5, 7, 3, 2];  
+var array int temp = [5, 7, 3, 2];  
 println(temp.length);
 println(temp.head); 
 println(temp.tail);
@@ -95,15 +95,15 @@ Output:
 Indexing in arrays is similar to strings. The syntax is as follows-  
 
 ```
-var array temp = [1, 4, 6, 2, 7, 9];  
+var array int temp = [1, 4, 6, 2, 7, 9];  
 println(temp[4]); 
 ```
 O/P- 7  
 
 ### Tuples:   
-Tuples are similar to arrays but with two constraints- these are immutable, and once declared, the size can’t be changed and that said, we have to explicitly put the values.  
+Tuples are similar to arrays but with two constraints- these are immutable, and once declared, the size can’t be changed and that said, we have to explicitly put the values. All the syntax rules for tuples are same as those of arrays. 
 
-`var tuple temp = (5, 7, 3, 2);`  
+`var tuple int temp = (5, 7, 3, 2);`  
 
 ### Operators:  
 
@@ -196,17 +196,77 @@ return <value>;
 
 ### Closures:  
 
+Here is a detailed explanation of closures and scopes in Nova language:
+
+**Closures**
+
+A closure is a function that can access variables defined in outer scopes, even after the outer functions have returned. In Nova, closures can be implemented like:
+
 ```
-fn outer (){  
-var string outervar = “Hello”;
-fn inner (){    
-println(outervar);
-};  
-};
-inner(); 
+fn outer(){
+  var x = 10; 
+  
+  fn inner(){
+    println(x); //access x declared in outer
+  }
+  
+  inner();
+}
 ```
 
-This prints out “Hello” even though function inner has no access of outervar, showing closure in the Nova language.  
+Here:
+
+- `outer()` defines a variable `x`
+- An inner function `inner()` is defined inside `outer()`
+- When `inner()` is called later, it still has access to `x` from outer scope due to closure
+
+This allows `inner()` access to variables in scopes outside of it, even when executed later outside of that scope.
+
+**Scopes**
+
+Scopes in Nova refer to the accessibility and lifetime of variables. There are 3 types of scopes:
+
+1. **Block Scope**
+
+Variables declared inside a `{ }` block with `var` are block scoped. They are only accessible within that block:
+
+``` 
+{
+  var x = 10;
+  println(x); // x accessible
+}
+
+println(x) // Error, x not defined
+```
+
+2. **Function Scope** 
+
+Variables declared inside a function with `var` are function scoped - accessible within the function:
+
+```
+fn foo(){
+   var y = 20;
+   println(y); // y accessible
+} 
+
+println(y) // Error, y not accessible
+```
+
+3. **Global Scope**
+
+Variables declares globally are accessible everywhere.:
+
+```
+var int x= 3;
+
+fn check(){
+   x= 5;
+};
+
+println(x) // prints 5
+```
+
+So in summary, Nova has block, function and local scopes dictating the lifetimes and accessibility of variables.
 
 ### Exception-handling:  
 The basic structure of exception handling in Nova involves the use of the ‘try’ and ‘catch’ blocks. The ‘try’ block encloses the code that may potentially throw an exception, and the ‘catch’ block defines the code to handle the thrown exception.  
