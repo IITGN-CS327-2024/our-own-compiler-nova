@@ -269,7 +269,7 @@ fn check(){
 println(x) // prints 5
 ```
 
-So in summary, Nova has block, function and local scopes dictating the lifetimes and accessibility of variables.
+In Nova we can use the local variable of outer function from inner function and store the outer function into a 'variable'. So, in summary, Nova has block, function and local scopes dictating the lifetimes and accessibility of variables.
 
 ### Exception-handling:  
 The basic structure of exception handling in Nova involves the use of the ‘try’ and ‘catch’ blocks. The ‘try’ block encloses the code that may potentially throw an exception, and the ‘catch’ block defines the code to handle the thrown exception.  
