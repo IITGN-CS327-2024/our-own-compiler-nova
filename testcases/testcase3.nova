@@ -1,1 +1,19 @@
-var array temp = [1, 2,3, 4];
+var int x = 1;
+if (x != 0) {
+    return 5/x;
+}; 
+else {
+    \\throw DivisionByZero;
+};
+
+var int y = 1;
+loop (y < 5) {
+    y = y + 1;
+};
+
+try {
+    printNum(4);
+};
+catch (e) {
+    println("Error");
+};
