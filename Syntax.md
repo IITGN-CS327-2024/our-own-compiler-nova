@@ -194,14 +194,14 @@ Comments in nove starts with "#" followed by the message/comment.
 To define any function in Nova Language, the syntax is as follows:  
 
 ```
-fn <function_name>(parameters) {
+fn <function_name>(parameters) :: <return datatype / void> {
 //function body  
 return <value>;
 };
 ```
 
 ```
-fn computeSum(int num1, int num2){
+fn computeSum(int num1, int num2) :: int{
    var int sum = num1 + num2;
    return sum;
 };
@@ -216,10 +216,10 @@ Here is a detailed explanation of closures and scopes in Nova language:
 A closure is a function that can access variables defined in outer scopes, even after the outer functions have returned. In Nova, closures can be implemented like:
 
 ```
-fn outer(){
+fn outer() ::void{
   var x = 10; 
   
-  fn inner(){
+  fn inner() :: void{
     println(x); //access x declared in outer
   }
   
@@ -257,7 +257,7 @@ println(x) // Error, x not defined
 Variables declared inside a function with `var` are function scoped - accessible within the function:
 
 ```
-fn foo(){
+fn foo() :: void{
    var int y = 20;
    println(y); // y accessible
 } 
@@ -272,7 +272,7 @@ Variables declares globally are accessible everywhere.:
 ```
 var int x= 3;
 
-fn check(){
+fn check() :: void{
    x= 5;
 };
 
