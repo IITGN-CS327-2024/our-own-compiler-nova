@@ -13,7 +13,7 @@ Nova lang would support three types, namely numbers, booleans, and string. The n
 Integer   | Bool    | String
 --------- | ------- | ------
 int       | bool    | string
-
+``` 
 There are only two boolean types: true and false.
 
 Variable Declaration
