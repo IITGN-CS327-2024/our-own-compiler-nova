@@ -1,8 +1,28 @@
-var num int  = 23;
-var temp string = "Hello, World!";
+var int num  = 23;
+var string temp = "Hello, World!";
+println(temp[3]);
+
+var array _temp = [1,2,3,4];
+println(_temp.length);
+println(_temp.head);
+println(_temp.tail);
+_temp.cons(5);
+println(_temp.head);
+
+var int expr = 2 + 3 * 6 / 2 - 1;
+var bool condn = (3 > 2) or (1 < 2) and (10 == 20) or true 
 
 fn printNum(int num){
     println(num);
 };
 
 printNum(123);
+
+var int x = 1;
+if (x < 5) {
+    println(1);
+} else {
+    println(2);
+}
+
+
