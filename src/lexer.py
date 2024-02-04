@@ -7,7 +7,7 @@ keywords = ["var", "int", "bool", "string", "println", "array", "tuple", "if", "
 ]
 operators = ["+", "-", "*", "/", "==", "=", "<", ">", "<=", ">=", "!=", "!", "|", "."]
 logical_operators = ["and", "or", "not"]
-whitespace = [" ", "\t", "\n"]
+whitespace = [" ", "\t"]
 array_methods = ["length", "head", "tail", "cons"]
 left_braces = ["{"]
 left_parenthesis = ["("]
@@ -41,7 +41,7 @@ def lexer(code : str, tokens : list):
         cur_pos = 0
         temp = word
         while(cur_pos < len(temp)):
-            if word in whitespace:
+            if word in whitespace or word in "\n":
                 continue
 
             #<---------------------string starts------------------------>
