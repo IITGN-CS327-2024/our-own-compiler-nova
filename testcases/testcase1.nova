@@ -5,7 +5,7 @@ println(temp[3]);
 var int expr = (2 + 3) * (6 / 2) - 1;
 var bool condn = (3 > 2) or (1 < 2) and (10 == 20) or true 
 
-fn printNum(int num){
+fn printNum(int num) :: void{
     println(num);
 };
 
