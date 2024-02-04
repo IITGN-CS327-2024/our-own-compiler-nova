@@ -1,7 +1,7 @@
 import os
 import re
 
-keywords = ["var", "int", "bool", "string", "println", "array", "tuple", "if", "else", "loop", "true", "false", "fn", "return", "break", "continue", "and", "or", "not", "try", "catch", "throw", 
+keywords = ["var", "int", "bool", "string", "println", "array", "tuple", "if", "else", "loop", "true", "false", "fn", "return", "void", "break", "continue", "and", "or", "not", "try", "catch", "throw", 
 # Array methods:
 "length", "head", "tail", "cons"
 ]
@@ -9,17 +9,14 @@ operators = ["+", "-", "*", "/", "==", "=", "<", ">", "<=", ">=", "!=", "!", "|"
 logical_operators = ["and", "or", "not"]
 whitespace = [" ", "\t", "\n"]
 array_methods = ["length", "head", "tail", "cons"]
-# TODO: Need to add support for left/right parenthesis
-# left_bracket  = ["(", "[", "{"]
-
 left_braces = ["{"]
 left_parenthesis = ["("]
 left_barcket = ["["]
 right_braces = ["}"]
 right_parenthesis = [")"]
 right_barcket = ["]"]
-
-symbols       = [",", ":"]
+symbols       = ["::"]
+seprator = [",", ":"]
 endOfStmt   = [";"]
 
 # keyword can be termed as idnentifiers
@@ -111,12 +108,19 @@ def lexer(code : str, tokens : list):
                     tokens.append(["KEYWORD", identifier_value])
                 cur_pos += len(identifier_value)
 
-            elif re.match(pattern=",|:", string=word):
-                match = re.match(pattern=",|:", string=word)
+            elif re.match(pattern="::", string=word):
+                match = re.match(pattern="::", string=word)
                 symbol_value = match.group()
                 # print(symbol_value)
                 tokens.append(["SYMBOL", symbol_value])
                 cur_pos += len(symbol_value)
+
+            elif re.match(pattern=",|:", string=word):
+                match = re.match(pattern=",|:", string=word)
+                seperator_value = match.group()
+                # print(seperator_value)
+                tokens.append(["SEPERATOR", seperator_value])
+                cur_pos += len(seperator_value)
 
             elif re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!", string=word):
                 match = re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!", string=word)
@@ -130,12 +134,12 @@ def lexer(code : str, tokens : list):
                 # print(logical_operator_value)
                 tokens.append(["LOGICAL_OPERATOR", logical_operator_value])
                 cur_pos += len(logical_operator_value)
-            elif re.match(pattern="\(|\[|\{", string=word):
-                match = re.match(pattern="\(|\[|\{", string=word)
-                left_bracket_value = match.group()
-                # print(left_bracket_value)
-                tokens.append(["LEFT_BRACKET", left_bracket_value])
-                cur_pos += len(left_bracket_value)
+            # elif re.match(pattern="\(|\[|\{", string=word):
+            #     match = re.match(pattern="\(|\[|\{", string=word)
+            #     left_bracket_value = match.group()
+            #     # print(left_bracket_value)
+            #     tokens.append(["LEFT_BRACKET", left_bracket_value])
+            #     cur_pos += len(left_bracket_value)
 
             # <---------------------left parenthesis/braces/bracket------------------------>
             elif re.match(pattern="\(", string=word):
@@ -205,7 +209,7 @@ def lexer(code : str, tokens : list):
 
 
 tokens = []
-file_path = os.path.join("src", "..", "testcases", "testcase4.nova")
+file_path = os.path.join("src", "..", "testcases", "testcase1.nova")
 with open(file_path, "r") as code:
     for line in code:
         lexer(line, tokens)
