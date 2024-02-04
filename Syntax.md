@@ -14,7 +14,7 @@ could be extended to float to store floating point numbers such as 1.04, but as 
 There are only two types- true, false
 
 ### Variable Declaration:  
-Variables in Nova can be declared using the var keyword followed by the declaration of the type(int, string, bool) and its name. One thing to note: it is also necessary to initialise the variable, and once a variable is declared, it cannot be redeclared in any of the scopes(same or child). By default, all the variables in Nova are mutable, but only the same type of values can be assigned if needed; otherwise, it will throw an error.  
+Variables in Nova can be declared using the var keyword followed by the declaration of the type(int, string, bool) and its name. One thing to note: it is also necessary to initialise the variable, and once a variable is declared, it cannot be redeclared in any of the scopes(same or child). Any variable name can not begin by "_". By default, all the variables in Nova are mutable, but only the same type of values can be assigned if needed; otherwise, it will throw an error.  The default value of integer is 0, string is "" and that of bool is false.
 
 `var <type> <variable_name> = <value>;`  
 
@@ -59,8 +59,7 @@ println(s3);
 The output will be “TeaPost”.  
 
 ### Arrays:  
-Arrays can be thought of as a collection of homogenous data types. In Nova, it can be declared in the same way as a variable using square brackets.  
-
+Arrays can be thought of as a collection of homogenous data types. In Nova, it can be declared in the same way as a variable using square brackets. The default value of an array of any data type would be an array of the default value(s) of that data type of the size declared earlier.
 `var array int temp = [5, 7, 3, 2];`  
 
 Or  
@@ -161,6 +160,7 @@ else {
 ```
 If the condition inside the if block turns out to be true then only the if code block gets executed. Otherwise, only else code block gets executed.  
 
+
 #### Loop:  
 In most of the languages, there is support for 2 types of loops while and for. In Nova, there is only one with the keyword loop and it works like a while loop in most of the languages. The code block inside will be looped till the condition stays true.  
 
@@ -178,6 +178,7 @@ loop ( x < 5 ) {
 x = x + 1;  
 };
 ```
+Nova also supports two additional keywords within the loops- break and continue. Whenever a break statement is executed, the loop containing the break statement is terminated. Continue statement is used to skip the current iteration.
 
 #### Print Statement:  
 A print statement in Nova would look like this, where println stands for “print line”.  
