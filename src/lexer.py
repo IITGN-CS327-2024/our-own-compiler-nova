@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 
 keywords = ["var", "int", "bool", "string", "println", "array", "tuple", "if", "else", "loop", "true", "false", "fn", "return", "void", "break", "continue", "and", "or", "not", "try", "catch", "throw", 
 # Array methods:
@@ -220,9 +221,13 @@ def lexer(code : str, tokens : list):
         string_found = False
         collect_string = ""
 
+if len(sys.argv) != 2:
+    print(f"Expected 2 argments given {len(sys.argv)} arguments") 
+    sys.exit(1)
+file_name = sys.argv[1]
 
 tokens = []
-file_path = os.path.join("src", "..", "testcases", "testcase5.nova")
+file_path = os.path.join("..", "testcases", f"{file_name}")
 with open(file_path, "r") as code:
     for line in code:
         lexer(line, tokens)
