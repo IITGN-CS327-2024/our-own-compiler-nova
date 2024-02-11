@@ -216,15 +216,15 @@ Here is a detailed explanation of closures and scopes in Nova language:
 A closure is a function that can access variables defined in outer scopes, even after the outer functions have returned. In Nova, closures can be implemented like:
 
 ```
-fn outer() ::void{
+fn outer() :: void{
   var x = 10; 
   
   fn inner() :: void{
     println(x); //access x declared in outer
-  }
+  };
   
   inner();
-}
+};
 ```
 
 Here:
