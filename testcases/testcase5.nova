@@ -1,16 +1,48 @@
-# Overall testcase
+# Overall testcase -- comment
+
 var int counter = 5;
-var string greeting = "Hello, World!";
-println(greeting[7]);
-var array numbers = [5, 4, 3, 2];
-println(numbers.length);
-println(numbers.head);
-println(numbers.tail);
-numbers.cons(6);
-println(numbers.head);
-var int result = 10 - 6 * 3;
+var string greeting = "Hello, World! How is it going ";
+println(greeting[7]);   #Output should be W
+println(greeting[1 : 3])
+var string firstPerson = "Hi";
+var string secondPerson = "Hello";
+var string combined = firstPerson | secondPerson;
+
+# Array operations
+var array int numbers = [5, 4, 3, 2];
+println(numbers.length);    #O/P- 4
+println(numbers.head);      #O/P- 5
+println(numbers.tail);      #O/P- 2
+numbers.cons(6);            #adds 6 to the front of the array
+println(numbers.head);      #O/p- 6
+
+# Tuples:
+var tuple int sequence = (1, 3, 5, 7);
+println(sequence[2]);
+println(sequence[1 : 3])
+
+var int result = 10 - ((6 * 3) + (6 / 3));
 var bool isGTE = (result >= 0);
-var bool condn = true or false and not false;
+var bool condn = (true or false) and (not false);
+
+var int bitFlip = !counter;
+var int negativeNum = -4;
+
+
+# Closure
+fn outer() :: int{
+  var x = 10; 
+  
+  fn inner() :: void{
+    println(x); //access x declared in outer
+  };
+  
+  inner();
+  return x;
+};
+var int y = outer();
+
+# Conditional statements
 var int value = 9;
 if (value > 5) {
     println(value);
@@ -18,19 +50,37 @@ if (value > 5) {
 else {
     println("Below threshold");
 };
+
+#loops in nova
 var int index = 0;
 loop (index < 5) {
     index = index + 1;
     if (index == 3) {
-      pass;
+        continue;
+    };
+    if (index == 4) {
+        println("interrupted");
+        break;
     };
     println("flag");
 };
+
+#try and catch block
 try {
-var string result = "Hello" + 42; 
+    # var string result = "Hello" + 42; 
+    var array int myList = [1, 2, 3];
+    if (7 >= myList.length) {
+        throw IndexError;
+    };
+    else {
+        println(myList[7]);
+    };
 };
-catch (TypeError) {
-println("Invalid operation");
+catch (IndexError) {
+    println("Invalid operation");
+};
+catch (e) {
+    println("Default Catch Block");
 };
 
-$Invalid
+$invalidToken
