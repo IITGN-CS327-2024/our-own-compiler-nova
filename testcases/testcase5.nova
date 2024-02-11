@@ -32,3 +32,5 @@ var string result = "Hello" + 42;
 catch (TypeError) {
 println("Invalid operation");
 };
+
+$Invalid
