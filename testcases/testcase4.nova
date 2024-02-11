@@ -1,0 +1,3 @@
+var string msg;
+msg = "Hello, User! Welcome to Nova!"
+println(msg);

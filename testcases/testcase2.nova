@@ -1,0 +1,6 @@
+var array int temp1 = [1,2,3,4];
+println(temp1.length);
+println(temp1.head);
+println(temp1.tail);
+temp1.cons(5);
+println(temp1.head);
