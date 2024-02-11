@@ -1,9 +1,9 @@
 # NOVA
 
-### Instructions to run lexer:
+### Instructions to get the output of lexer:
 
 ```bash
-python3 lexer.py testcase1.nova
+python3 parser_.py testcase1.nova
 ```
 
 Change the testcase number as you like. There are a total of 5 testcases and the last one has all the token in it.
