@@ -23,6 +23,10 @@ println(sequence[1 : 3])
 
 var int result = 10 - ((6 * 3) + (6 / 3));
 var bool isGTE = (result >= 0);
+var bool isLTE = (resutl <= 0);
+var bool isEQT = (resutl == 0);
+var bool isLT  = (resutl < 0);
+var bool isGT  = (resutl > 0);
 var bool condn = (true or false) and (not false);
 
 var int bitFlip = !counter;
