@@ -221,14 +221,14 @@ def lexer(code : str, tokens : list):
         string_found = False
         collect_string = ""
 
-if len(sys.argv) != 2:
-    print(f"Expected 2 argments given {len(sys.argv)} arguments") 
-    sys.exit(1)
-file_name = sys.argv[1]
+# if len(sys.argv) != 2:
+#     print(f"Expected 2 argments given {len(sys.argv)} arguments") 
+#     sys.exit(1)
+# file_name = sys.argv[1]
 
-tokens = []
-file_path = os.path.join("..", "testcases", f"{file_name}")
-with open(file_path, "r") as code:
-    for line in code:
-        lexer(line, tokens)
-print(tokens)
+# tokens = []
+# file_path = os.path.join("..", "testcases", f"{file_name}")
+# with open(file_path, "r") as code:
+#     for line in code:
+#         lexer(line, tokens)
+# print(tokens)
