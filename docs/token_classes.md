@@ -61,5 +61,7 @@ These are used to seperate entities, e.g., numbers in a array or range in slicin
 
 Each of the statement must end with a ";"
 
+- Invalid
+> Anything other then the above mentioned classed would be defined as invalid tokens.
 
 Note: Braces represents the blocking statements start and end. bracket are used in indexing and slicing operations. Parenthesis is used in enclosing function parameters, difining values in array methods.
