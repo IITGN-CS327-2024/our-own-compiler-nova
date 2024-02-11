@@ -132,8 +132,8 @@ def lexer(code : str, tokens : list):
                 tokens.append(["SEPERATOR", seperator_value])
                 cur_pos += len(seperator_value)
 
-            elif re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!", string=word):
-                match = re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!", string=word)
+            elif re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!|\|", string=word):
+                match = re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!|\|", string=word)
                 operator_value = match.group()
                 # print(operator_value)
                 tokens.append(["OPERATOR", operator_value])
@@ -205,7 +205,7 @@ def lexer(code : str, tokens : list):
                 tokens.append(["END_OF_STMT", endOfStream])
                 cur_pos += len(endOfStream)
             else:
-                print("Token:", word)
+                # print("Token:", word)
                 tokens.append(["INVALID", word])
                 cur_pos += len(word)
                 # raise Exception("Invalid token found")
