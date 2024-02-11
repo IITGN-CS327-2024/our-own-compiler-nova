@@ -64,7 +64,7 @@ def lexer(code : str, tokens : list):
             # Starting
             elif re.match(pattern='\"[^"]*', string=word):
                 if string_found == False:
-                    collect_string += word
+                    collect_string += word + " "
                     string_found = True
                     cur_pos += len(word)
                 else:
@@ -84,7 +84,7 @@ def lexer(code : str, tokens : list):
 
             # In between phases
             elif string_found == True:
-                collect_string += word
+                collect_string += word +  " "
                 cur_pos += len(word)
             #<---------------------string ends------------------------>
 
