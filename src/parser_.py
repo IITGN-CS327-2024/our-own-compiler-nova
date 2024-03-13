@@ -44,9 +44,9 @@ grammar = """
     
     tuple_declaration: "var" "tuple" data_type identifier "=" "("expression_list")" ";"
 
-    array_operation: identifier "." method_name ";"
+    array_operation: identifier "." method_name
 
-    method_name: "length" | "head" | "tail" | "cons" "("literal")"
+    method_name: "length" | "head" | "tail" | "cons" "("literal")" ";"
 
     try_catch_statement: "try" "{" statement* "}" ";" catch_block
 
@@ -70,15 +70,18 @@ grammar = """
     assigned_value: expression 
                   | function_call
     
-    function_call: identifier "("expression_list")"
+    function_call: identifier "(" expression_list ")" (";")?
 
     expression_list: expression 
                    | expression "," expression_list
+                   |
                      
     expression: condition
                 | identifier "["literal"]"
                 | identifier "["literal ":" literal"]"
                 | expression "|" condition
+                | function_call
+                | array_operation
 
     condition: condition "and" condition1 
                 | condition1
@@ -93,7 +96,7 @@ grammar = """
 
     comparison_operation: ">" | "<" | ">=" | "<=" | "==" | "!="
                 
-    arithmetic_operation: add_operand
+    arithmetic_operation: add_operand | array_operation
     add_operand: add_operand "+" mul_operand 
                 | add_operand "-" mul_operand 
                 | mul_operand
