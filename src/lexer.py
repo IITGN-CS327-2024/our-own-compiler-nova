@@ -2,21 +2,21 @@ import os
 import re
 import sys
 
-keywords = ["var", "int", "bool", "string", "println", "array", "tuple", "if", "else", "loop", "true", "false", "fn", "return", "void", "break", "continue", "and", "or", "not", "try", "catch", "throw", 
+keywords = ["var", "int", "bool", "string", "println", "array", "tuple", "if", "else", "loop", "true", "false", "fn", "return", "void", "break", "continue", "try", "catch", "throw", 
 # Array methods:
 "length", "head", "tail", "cons"
 ]
 operators = ["+", "-", "*", "/", "==", "=", "<", ">", "<=", ">=", "!=", "!", "|", "."]
 logical_operators = ["and", "or", "not"]
 whitespace = [" ", "\t"]
-array_methods = ["length", "head", "tail", "cons"]
+array_op = ["length", "head", "tail", "cons"]
 left_braces = ["{"]
 left_parenthesis = ["("]
 left_barcket = ["["]
 right_braces = ["}"]
 right_parenthesis = [")"]
 right_barcket = ["]"]
-symbols       = ["::"]
+double_colon  = ["::"]
 seprator = [",", ":"]
 endOfStmt   = [";"]
 
@@ -102,27 +102,23 @@ def lexer(code : str, tokens : list):
                 match = re.match(pattern="[a-zA-Z][a-zA-Z0-9]*", string=word)
                 identifier_value = match.group()
                 # print(identifier_value)
-                if identifier_value in keywords:
+                if identifier_value in ["true", "false"]:
+                    tokens.append(["BOOLEAN", identifier_value])
+                elif identifier_value in array_op:
+                    tokens.append(["ARRAY_OPERATION", identifier_value])
+                elif identifier_value in keywords:
                     tokens.append(["KEYWORD", identifier_value])
-                elif identifier_value in array_methods:
-                    tokens.append(["ARRAY_METHOD", identifier_value])
+                elif identifier_value in logical_operators:
+                    tokens.append(["LOGICAL_OPERATOR", identifier_value])
                 else:
                     tokens.append(["IDENTIFIER", identifier_value])
-                cur_pos += len(identifier_value)
-
-            elif re.match(pattern="[a-zA-Z][a-zA-Z0-9]*", string=word):
-                match = re.match(pattern="[a-zA-Z][a-zA-Z0-9]*", string=word)
-                identifier_value = match.group()
-                # print(identifier_value)
-                if identifier_value in keywords:
-                    tokens.append(["KEYWORD", identifier_value])
                 cur_pos += len(identifier_value)
 
             elif re.match(pattern="::", string=word):
                 match = re.match(pattern="::", string=word)
                 symbol_value = match.group()
                 # print(symbol_value)
-                tokens.append(["SYMBOL", symbol_value])
+                tokens.append(["DOUBLE_COLON", symbol_value])
                 cur_pos += len(symbol_value)
 
             elif re.match(pattern=",|:", string=word):
@@ -132,24 +128,62 @@ def lexer(code : str, tokens : list):
                 tokens.append(["SEPERATOR", seperator_value])
                 cur_pos += len(seperator_value)
 
-            elif re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!|\|", string=word):
-                match = re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!|\|", string=word)
+            # plus, minus, multiply, divide
+            elif re.match(pattern="\+|\-|\*|\/", string=word):
+                match = re.match(pattern="\+|\-|\*|\/", string=word)
                 operator_value = match.group()
                 # print(operator_value)
-                tokens.append(["OPERATOR", operator_value])
+                tokens.append(["ARITHMETIC_OPERATOR", operator_value])
                 cur_pos += len(operator_value)
+
+            elif re.match(pattern="\=\=|\!\=|\<\=|\>\=|\<|\>", string=word):
+                match = re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>", string=word)
+                operator_value = match.group()
+                # print(operator_value)
+                tokens.append(["COMPARISON_OPERATOR", operator_value])
+                cur_pos += len(operator_value)
+
+            elif re.match(pattern="\=", string=word):
+                match = re.match(pattern="\=", string=word)
+                operator_value = match.group()
+                # print(operator_value)
+                tokens.append(["ASSIGN", operator_value])
+                cur_pos += len(operator_value)
+
+            elif re.match(pattern="\.", string=word):
+                match = re.match(pattern="\.", string=word)
+                operator_value = match.group()
+                # print(operator_value)
+                tokens.append(["ARRAY_OPERATOR", operator_value])
+                cur_pos += len(operator_value)
+
+            elif re.match(pattern="!", string=word):
+                match = re.match(pattern="!", string=word)
+                operator_value = match.group()
+                # print(operator_value)
+                tokens.append(["UNARY_NOT", operator_value])
+                cur_pos += len(operator_value)
+
+            elif re.match(pattern="\|", string=word):
+                match = re.match(pattern="\|", string=word)
+                operator_value = match.group()
+                # print(operator_value)
+                tokens.append(["STRING_OPERATOR", operator_value])
+                cur_pos += len(operator_value)
+
+            # elif re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!|\|", string=word):
+            #     match = re.match(pattern="\+|\-|\*|\/|\=\=|\!\=|\<\=|\>\=|\<|\>|\=|\.|!|\|", string=word)
+            #     operator_value = match.group()
+            #     # print(operator_value)
+            #     tokens.append(["OPERATOR", operator_value])
+            #     cur_pos += len(operator_value)
+
             elif re.match(pattern="and|or|not", string=word):
                 match = re.match(pattern="and|or|not", string=word)
                 logical_operator_value = match.group()
                 # print(logical_operator_value)
                 tokens.append(["LOGICAL_OPERATOR", logical_operator_value])
                 cur_pos += len(logical_operator_value)
-            # elif re.match(pattern="\(|\[|\{", string=word):
-            #     match = re.match(pattern="\(|\[|\{", string=word)
-            #     left_bracket_value = match.group()
-            #     # print(left_bracket_value)
-            #     tokens.append(["LEFT_BRACKET", left_bracket_value])
-            #     cur_pos += len(left_bracket_value)
 
             # <---------------------left parenthesis/braces/bracket------------------------>
             elif re.match(pattern="\(", string=word):
@@ -190,13 +224,6 @@ def lexer(code : str, tokens : list):
                 # print(right_bracket_value)
                 tokens.append(["RIGHT_BRACKET", right_bracket_value])
                 cur_pos += len(right_bracket_value)
-
-            # elif re.match(pattern="\)|\]|\}", string=word):
-            #     match = re.match(pattern="\)|\]|\}", string=word)
-            #     right_bracket_value = match.group()
-            #     # print(right_bracket_value)
-            #     tokens.append(["RIGHT_BRACKET", right_bracket_value])
-            #     cur_pos += len(right_bracket_value)
 
             elif re.match(pattern=";", string=word):
                 match = re.match(pattern=";", string=word)
