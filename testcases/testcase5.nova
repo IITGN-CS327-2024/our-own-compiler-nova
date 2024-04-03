@@ -42,27 +42,27 @@ fn outer() :: int{
   };
   
   inner();
-  return x;
+  return : x;
 };
 var int y = outer();
 
 # Conditional statements
 var int value = 9;
-if (value > 5) {
+if (value > 5) then {
     println(value);
 };
-else {
+else then {
     println("Below threshold");
 };
 
 #loops in nova
 var int index = 0;
-loop (index < 5) {
+loop through (index < 5) {
     index = index + 1;
-    if (index == 3) {
+    if (index == 3) then{
         continue;
     };
-    if (index == 4) {
+    if (index == 4) then{
         println("interrupted");
         break;
     };
@@ -73,10 +73,10 @@ loop (index < 5) {
 try {
     # var string result = "Hello" + 42; 
     var array int myList = [1, 2, 3];
-    if (7 >= myList.length) {
+    if (7 >= myList.length) then{
         throw IndexError;
     };
-    else {
+    else then{
         println(myList[7]);
     };
 };

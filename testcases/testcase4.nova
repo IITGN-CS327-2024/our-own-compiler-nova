@@ -1,3 +1,21 @@
 var string msg;
 msg = "Hello, User! Welcome to Nova!";
 println(msg);
+
+fn genSum(int n) :: int {
+    var int count = n;
+    var int sum = 0;
+    loop (count) {
+        sum = sum + count;
+        count = count - 1;
+    };
+    return : sum;
+};
+
+if (true) {
+    var int sum = genSum(7);
+    println(sum);
+};
+else{
+    println("nothing over here");
+};
