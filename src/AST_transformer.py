@@ -1,5 +1,7 @@
 import def_node_classes
 import lark
+
+from lexer import keywords, endOfStmt
     
 # Converts a list of lists to a single list
 def single_list(_list):
@@ -10,6 +12,13 @@ def single_list(_list):
         else:
             combined_list.append(entry)
     return combined_list
+
+def required_tokens(adj_nodes, *tokens):
+    not_wanted=[]
+    for token in tokens:
+        not_wanted.append(token)
+    not_wanted = single_list(not_wanted)
+    return [tokens for tokens in adj_nodes if tokens not in not_wanted]
 
 class CustomTransformer(lark.Transformer):
 
@@ -29,7 +38,7 @@ class CustomTransformer(lark.Transformer):
     
     def variable_declaration_initialization(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
-        print(adj_nodes)
+        adj_nodes = required_tokens(adj_nodes, keywords, endOfStmt)
         return def_node_classes.VariableDeclarationInitialization(adj_nodes)
     
     def function_call(self, adj_nodes):
@@ -69,6 +78,7 @@ class CustomTransformer(lark.Transformer):
     
     def try_catch_statement(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
+        print(adj_nodes)
         return def_node_classes.TryCatchStatement(adj_nodes)
     
     def throw_statement(self, adj_nodes):
