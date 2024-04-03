@@ -2,10 +2,11 @@ import os
 import re
 import sys
 
-keywords = ["var", "int", "bool", "string", "println", "array", "tuple", "if", "else", "loop", "true", "false", "fn", "return", "void", "break", "continue", "try", "catch", "throw", 
+keywords = ["var", "int", "bool", "string", "println", "array", "tuple", "if", "else", "then", "loop", "through", "true", "false", "fn", "return", "void", "break", "continue", "try", "catch", "throw", 
 # Array methods:
 "length", "head", "tail", "cons"
 ]
+error_type = ["TypeError", "DivisionByZeroError", "NameError", "IndexError", "e"]
 operators = ["+", "-", "*", "/", "==", "=", "<", ">", "<=", ">=", "!=", "!", "|", "."]
 logical_operators = ["and", "or", "not"]
 whitespace = [" ", "\t"]
