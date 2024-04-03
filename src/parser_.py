@@ -1,7 +1,6 @@
 import os
 import sys
 import def_node_classes, AST_transformer
-import rich
 
 from dataclasses import dataclass
 from lark import Lark, ast_utils, Transformer, v_args, Tree
@@ -151,6 +150,17 @@ this_module = sys.modules[__name__]
 #     END_OF_STMT: ";"
 # """
 
+# TODO: loop stm, conditional stm have the same format grammer, need to fix it          ---> DONE
+# TODO: return stm, print stm have the same format grammer, need to fix it              ---> DONE
+# TODO: conditional stm and catch block have the same format grammer, need to fix it    ---> DONE
+
+# CHANGES: if-else syntax: added "then" keyword before the left braces
+# CHANGES: added a seperator(:) in return statement
+# CHANGES: added "through" keyword in loop statement
+# CHANGES: ERROR_TYPE is treated as an identifier
+# CHANGES: removed catch_block from statement and kept it part of try_catch_statement only
+
+# OBSERVATION: The grammar has epsilon productions due to which the AST can produce NONE as a terminal node
 
 
 
@@ -179,12 +189,12 @@ grammar = """
     function_declaration: KEYWORD IDENTIFIER LEFT_PARENTHESIS parameter_list RIGHT_PARENTHESIS DOUBLE_COLON KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
 
 
-    conditional_statement: KEYWORD LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
-                        | KEYWORD LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACES statement+ RIGHT_BRACES END_OF_STMT KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
+    conditional_statement: KEYWORD LEFT_PARENTHESIS expression RIGHT_PARENTHESIS KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT KEYWORD KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
+                        | KEYWORD LEFT_PARENTHESIS expression RIGHT_PARENTHESIS KEYWORD LEFT_BRACES statement+ RIGHT_BRACES END_OF_STMT
     
-    return_statement: KEYWORD expression END_OF_STMT
+    return_statement: KEYWORD SEPERATOR expression END_OF_STMT
 
-    loop_statement: KEYWORD LEFT_PARENTHESIS  expression  RIGHT_PARENTHESIS LEFT_BRACES  statement*  RIGHT_BRACES END_OF_STMT
+    loop_statement: KEYWORD KEYWORD LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
 
     loop_control_statement: KEYWORD END_OF_STMT | KEYWORD END_OF_STMT
 
@@ -198,10 +208,12 @@ grammar = """
 
     ARRAY_OPERATION: "length" | "head" | "tail" | "cons"
 
-    try_catch_statement: KEYWORD LEFT_BRACES  statement*  RIGHT_BRACES END_OF_STMT catch_block
+    try_catch_statement: KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT catch_block
 
-    catch_block: KEYWORD LEFT_PARENTHESIS  ERROR_TYPE  RIGHT_PARENTHESIS LEFT_BRACES  statement*  RIGHT_BRACES END_OF_STMT catch_block
+    catch_block: KEYWORD LEFT_PARENTHESIS IDENTIFIER RIGHT_PARENTHESIS LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT catch_block
                 |
+
+    throw_statement: KEYWORD IDENTIFIER END_OF_STMT
 
     ERROR_TYPE: "TypeError"
                 | "DivisionByZeroError" 
@@ -209,7 +221,6 @@ grammar = """
                 | "IndexError" 
                 | "e"
 
-    throw_statement: KEYWORD ERROR_TYPE END_OF_STMT
 
     print_statement: KEYWORD LEFT_PARENTHESIS expression RIGHT_PARENTHESIS END_OF_STMT
 
@@ -220,8 +231,8 @@ grammar = """
     assigned_value: expression 
                   | function_call
     
-    function_call: IDENTIFIER LEFT_PARENTHESIS  expression_list  RIGHT_PARENTHESIS
-                 | IDENTIFIER LEFT_PARENTHESIS  expression_list  RIGHT_PARENTHESIS END_OF_STMT
+    function_call: IDENTIFIER LEFT_PARENTHESIS expression_list RIGHT_PARENTHESIS
+                 | IDENTIFIER LEFT_PARENTHESIS expression_list RIGHT_PARENTHESIS END_OF_STMT
 
     expression_list: expression 
                    | expression SEPERATOR expression_list
@@ -310,7 +321,7 @@ def generate_tokens(tokens: list, file_name: str):
     with open(file_path, "r") as code:
         for line in code:
             lexer(line, tokens)
-    # print(tokens)
+    print(tokens)
     return tokens
 
 def create_graph(tree, graph=None):
@@ -341,17 +352,17 @@ if __name__ == "__main__":
 
     # Generating the tokens using lexer and setting up the parser to use custom lexer's output
     tokens = generate_tokens(tokens, file_name)
-    parser = Lark(grammar, strict=True, lexer=TypeLexer)
+    parser = Lark(grammar, strict=True, lexer=TypeLexer, start="start")
 
     with open(f"../testcases/{file_name}", "r") as code:
         source_code = code.read()
 
     # Generating the parse tree
     parse_tree = parser.parse(source_code)
-    print(parse_tree)
-    print(parse_tree.pretty())
-    pydot__tree_to_png(parse_tree, "parse_tree.png")
-    print("Parse tree generated successfully, check parse_tree.png file for the parse tree.")
+    # print(parse_tree)
+    # print(parse_tree.pretty())
+    # pydot__tree_to_png(parse_tree, "parse_tree.png")
+    # print("Parse tree generated successfully, check parse_tree.png file for the parse tree.")
 
     # Building the AST
     transformer = AST_transformer.CustomTransformer()
