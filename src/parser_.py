@@ -199,7 +199,7 @@ grammar = """
 
     variable_initialization: IDENTIFIER ASSIGN assigned_value END_OF_STMT
 
-    function_declaration: KEYWORD IDENTIFIER LEFT_PARENTHESIS parameter_list RIGHT_PARENTHESIS DOUBLE_COLON KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
+    function_declaration: KEYWORD IDENTIFIER LEFT_PARENTHESIS _parameter_list RIGHT_PARENTHESIS DOUBLE_COLON KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
 
 
     conditional_statement: KEYWORD LEFT_PARENTHESIS expression RIGHT_PARENTHESIS KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT KEYWORD KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
@@ -211,10 +211,10 @@ grammar = """
 
     loop_control_statement: KEYWORD END_OF_STMT | KEYWORD END_OF_STMT
 
-    array_declaration: KEYWORD KEYWORD KEYWORD IDENTIFIER ASSIGN LEFT_BRACKET expression_list RIGHT_BRACKET END_OF_STMT
+    array_declaration: KEYWORD KEYWORD KEYWORD IDENTIFIER ASSIGN LEFT_BRACKET _expression_list RIGHT_BRACKET END_OF_STMT
                     |   KEYWORD KEYWORD LEFT_PARENTHESIS literal RIGHT_PARENTHESIS KEYWORD IDENTIFIER END_OF_STMT
     
-    tuple_declaration: KEYWORD KEYWORD KEYWORD IDENTIFIER ASSIGN LEFT_PARENTHESIS expression_list RIGHT_PARENTHESIS END_OF_STMT
+    tuple_declaration: KEYWORD KEYWORD KEYWORD IDENTIFIER ASSIGN LEFT_PARENTHESIS _expression_list RIGHT_PARENTHESIS END_OF_STMT
 
     array_operation: IDENTIFIER ARRAY_OPERATOR ARRAY_OPERATION
                     | IDENTIFIER ARRAY_OPERATOR ARRAY_OPERATION LEFT_PARENTHESIS literal RIGHT_PARENTHESIS END_OF_STMT
@@ -237,18 +237,18 @@ grammar = """
 
     print_statement: KEYWORD LEFT_PARENTHESIS expression RIGHT_PARENTHESIS END_OF_STMT
 
-    parameter_list: KEYWORD IDENTIFIER 
-                    | KEYWORD IDENTIFIER SEPERATOR parameter_list 
+    _parameter_list: KEYWORD IDENTIFIER 
+                    | KEYWORD IDENTIFIER SEPERATOR _parameter_list 
                     |
     
     assigned_value: expression 
                   | function_call
     
-    function_call: IDENTIFIER LEFT_PARENTHESIS expression_list RIGHT_PARENTHESIS
-                 | IDENTIFIER LEFT_PARENTHESIS expression_list RIGHT_PARENTHESIS END_OF_STMT
+    function_call: IDENTIFIER LEFT_PARENTHESIS _expression_list RIGHT_PARENTHESIS
+                 | IDENTIFIER LEFT_PARENTHESIS _expression_list RIGHT_PARENTHESIS END_OF_STMT
 
-    expression_list: expression 
-                   | expression SEPERATOR expression_list
+    _expression_list: expression 
+                   | expression SEPERATOR _expression_list
                    |
                      
     expression: condition
