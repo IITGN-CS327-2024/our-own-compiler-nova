@@ -11,8 +11,8 @@ class symbolTable:
         last_index = len(self.symbol_table) - 1
         # Iterating from the last scope to the first scope
         for i in range(last_index - 1, -1, -1):
-            if self.symbol_table[i]['token'].value == token:
-                return self.symbol_table[i]
+            if self.symbol_table[i][0]['token'].value == token:
+                return self.symbol_table[i][0]
         return None
 
     # TODO: Need to change it
@@ -167,9 +167,11 @@ class sementicAnalyzer(nodeVisitor):
         data = self.symbol_table.lookup_current_scope(node.children[0])
 
         if data == None:
-            raise Exception(
-                f"Variable {node.children[0]} not declared in the current scope"
-            )
+            data = self.symbol_table.lookup_all_prev_scopes(node.children[0])
+            if data == None:
+                raise Exception(
+                    f"Variable {node.children[0]} not declared in the current scope"
+                )
 
         # Collecting the necessary information, for the symbol table
         data = {
@@ -197,11 +199,15 @@ class sementicAnalyzer(nodeVisitor):
         elif node.children[1].type == 'IDENTIFIER':
             data = self.symbol_table.lookup_current_scope(node.children[1])
             if data == None:
-                raise Exception(
-                    f"Variable {node.children[1]} not declared in the current scope"
-                )
-            else:
-                value_to_print = data['data_type']
+                # If the variable is not declared in the current scope then need to check in the previous scopes
+                # This is because, new scopes are created only when a conditional staement is encountered,
+                # a function is called, or a loop is encountered. Therefore, need to take the value from there as well
+                data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
+                if data == None:
+                    raise Exception(
+                        f"Variable {node.children[1]} not declared in the current scope"
+                    )
+            value_to_print = data['data_type']
         else:
             # Here, the parameter is a terminal
             value_to_print = node.children[1].type
@@ -221,25 +227,39 @@ class sementicAnalyzer(nodeVisitor):
 
         # Need to increment the scope
         self.symbol_table.incremnet_scope()
+        print(self.symbol_table.symbol_table)
 
-        # Check the type of the condition
-        # lark.lexer.Token are for terminal nodes only
+        # If it is a non-terminal node then need to recursively visit it
         if type(node.children[1]) != lark.lexer.Token:
             condition = self.visit(node.children[1])
+
+        # IDENTIFIER in case of a variable or a function call
+        elif node.children[1].type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_current_scope(node.children[1])
+            if data == None:
+                data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
+                if data == None:
+                    raise Exception(
+                        f"Variable '{node.children[1]}' is not declared"
+                    )
+            condition = data['data_type']
+
+        # Here, it is checking for the simplest case i.e., NUMBERS, and BOOLEAN value
         else:
             condition = node.children[1].type
 
-        # The condition should be of the type BOOLEAN or NUMBER
+        # The condition should be of the type BOOLEAN or NUMBER after evaluating it
         if condition != 'BOOLEAN' and condition != 'NUMBER':
-            raise Exception(f"Invalid data type {condition}, for the condition")
+            raise Exception(f"Invalid data type '{condition}', for the condition")
 
         # Now visit the statement block
         self.visit(node.children[2])
-
 
         # If there are 5 adj_nodes then else block is present
         if (len(node.children) == 5):
             self.visit(node.children[4])
 
-
+        # At the end we will exit the scope.
+        # Therefore, need to decrement the scope
+        self.symbol_table.decrement_scope()
         return None
