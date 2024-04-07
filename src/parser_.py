@@ -1,6 +1,9 @@
 import os
 import sys
 import def_node_classes, AST_transformer
+import networkx as nx
+import matplotlib.pyplot as plt
+
 
 from dataclasses import dataclass
 from lark import Lark, ast_utils, Transformer, v_args, Tree
@@ -9,6 +12,7 @@ from lark.tree import pydot__tree_to_png, Meta
 from lexer import lexer
 from typing import List
 from graphviz import Digraph
+from type_checker import sementicAnalyzer
 
 
 this_module = sys.modules[__name__]
@@ -163,12 +167,17 @@ this_module = sys.modules[__name__]
 # OBSERVATION: The grammar has epsilon productions due to which the AST can produce NONE as a terminal node
 
 
+# variable_declaration_initialization:  KEYWORD KEYWORD IDENTIFIER END_OF_STMT
+#                                         | KEYWORD KEYWORD IDENTIFIER ASSIGN assigned_value END_OF_STMT
+#                                         | IDENTIFIER ASSIGN assigned_value END_OF_STMT
 
 
 grammar = """
     start: statement*
 
-    statement: variable_declaration_initialization 
+    statement: variable_declaration
+            | variable_declaration_initialization
+            | variable_initialization 
             | function_call 
             | function_declaration 
             | conditional_statement
@@ -182,9 +191,13 @@ grammar = """
             | throw_statement
             | print_statement
 
-    variable_declaration_initialization:  KEYWORD KEYWORD IDENTIFIER END_OF_STMT
-                                        | KEYWORD KEYWORD IDENTIFIER ASSIGN assigned_value END_OF_STMT
-                                        | IDENTIFIER ASSIGN assigned_value END_OF_STMT
+    
+
+    variable_declaration: KEYWORD KEYWORD IDENTIFIER END_OF_STMT
+
+    variable_declaration_initialization: KEYWORD KEYWORD IDENTIFIER ASSIGN assigned_value END_OF_STMT
+
+    variable_initialization: IDENTIFIER ASSIGN assigned_value END_OF_STMT
 
     function_declaration: KEYWORD IDENTIFIER LEFT_PARENTHESIS parameter_list RIGHT_PARENTHESIS DOUBLE_COLON KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
 
@@ -321,7 +334,7 @@ def generate_tokens(tokens: list, file_name: str):
     with open(file_path, "r") as code:
         for line in code:
             lexer(line, tokens)
-    print(tokens)
+    # print(tokens)
     return tokens
 
 def create_graph(tree, graph=None):
@@ -329,17 +342,75 @@ def create_graph(tree, graph=None):
         graph = Digraph()
 
     if isinstance(tree, def_node_classes.ASTNode):
-        children = vars(tree).items()
-        for _,child in children:
-            if isinstance(child, def_node_classes.ASTNode):
-                graph.node(str(id(child)), label = str(child), filled='true')
-                graph.edge(str(id(tree)), str(id(child)))
-                create_graph(child, graph)
+        graph.node(str(id(tree)), label=str(tree))
 
-            else:
-                graph.node(str(id(child)), label=str(child), shape='box', filled='true')
-                graph.edge(str(id(tree)), str(id(child)))
+        #Match case for int, string, bool
+        if isinstance(tree, def_node_classes.int):
+            graph.node(str(id(tree)), label=str(tree.value))
+        elif isinstance(tree, def_node_classes.string):
+            graph.node(str(id(tree)), label=str(tree.value))
+        elif isinstance(tree, def_node_classes.bool):
+            graph.node(str(id(tree)), label=str(tree.value))    
+
+        # try:
+        else:
+            for child in tree.children:
+                if isinstance(child, def_node_classes.ASTNode):
+                    graph.node(str(id(child)), label = str(child))
+                    graph.edge(str(id(tree)), str(id(child)))
+                    create_graph(child, graph)
+
+                elif isinstance(child, type(None)):
+                    pass
+
+                else:
+                    graph.node(str(id(child)), label=str(child))
+                    graph.edge(str(id(tree)), str(id(child)))
+               
+        # except: 
+        #     pass 
+        #     print("tree:", tree)
+        
     return graph
+
+def create_networkx_graph(node, graph=None):
+    if graph is None:
+        graph = nx.DiGraph()
+
+    if isinstance(node, def_node_classes.ASTNode):
+        graph.add_node(node)
+
+        for child in node.children:
+            if isinstance(child, def_node_classes.ASTNode):
+                graph.add_node(child)
+                graph.add_edge(node, child)
+                create_networkx_graph(child, graph)
+            elif isinstance(child, type(None)):
+                pass
+            else:
+                graph.add_node(child)
+                graph.add_edge(node, child)
+
+    return graph
+
+    # if graph is None:
+    #     graph = Digraph()
+
+    # if isinstance(tree, def_node_classes.ASTNode):
+    #     try:
+    #     children = tree.children
+    #     # print(children)
+    #     for child in children:
+    #         # print(child)
+    #         if isinstance(child, def_node_classes.ASTNode):
+    #             graph.node(str(id(child)), label = str(child), filled='true')
+    #             graph.edge(str(id(tree)), str(id(child)))
+    #             create_graph(child, graph)
+
+    #         else:
+    #             graph.node(str(id(child)), label=str(child), shape='box', filled='true')
+    #             graph.edge(str(id(tree)), str(id(child)))
+    # return graph
 
 
 
@@ -368,5 +439,16 @@ if __name__ == "__main__":
     transformer = AST_transformer.CustomTransformer()
     ast = transformer.transform(parse_tree)
 
+    # graph = create_networkx_graph(ast)
+    # nx.draw(graph, with_labels=True)
+    # plt.show()
+
+    # print(type(ast.label))    
+    # for attr, value in vars(ast).items():
+    #     print(f"{attr}: {value}")
+
     graph = create_graph(ast)
     graph.render('AST', format='png', view=True)
+
+    sementic_analyzer = sementicAnalyzer()
+    sementic_analyzer.visit_Start(ast)

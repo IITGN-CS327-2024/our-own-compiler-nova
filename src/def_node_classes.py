@@ -10,159 +10,148 @@ class ASTNode(metaclass=ASTNodeMeta):
     """Abstract b"""
     pass
 
-class Start(ASTNode):
+class initialize(ASTNode):
     def __init__(self, values):
+        self.children = []
         for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+            self.children.append(value)
 
-class Statement(ASTNode):
+class Start(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class VariableDeclarationInitialization(ASTNode):
+class Statement(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class FunctionCall(ASTNode):
+class VariableDeclarationInitialization(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class FunctionDeclaration(ASTNode):
+###########################################
+##################UPDATES##################
+###########################################
+class VariableDeclaration(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class ConditionalStatement(ASTNode):
+class VariableInitialization(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
+###########################################
+################ENDofUPDATES###############
+###########################################
 
-class ReturnStatement(ASTNode):
+class FunctionCall(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class LoopStatement(ASTNode):
+class FunctionDeclaration(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class LoopControlStatement(ASTNode):
+class ConditionalStatement(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class ArrayDeclaration(ASTNode):
+class ReturnStatement(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class TupleDeclaration(ASTNode):
+class LoopStatement(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class ArrayOperation(ASTNode):
+class LoopControlStatement(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class TryCatchStatement(ASTNode):
+class ArrayDeclaration(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class ThrowStatement(ASTNode):
+class TupleDeclaration(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class PrintStatement(ASTNode):
+class ArrayOperation(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class CatchBlock(ASTNode):
+class TryCatchStatement(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class ErrorType(ASTNode):
+class ThrowStatement(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class ExpressionList(ASTNode):
+class PrintStatement(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class ParameterList(ASTNode):
+class CatchBlock(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class AssignedValue(ASTNode):
+class ErrorType(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class ExpressionList(ASTNode):
+class ExpressionList(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class Expression(ASTNode):
+class ParameterList(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class Condition(ASTNode):
+class AssignedValue(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class Condition1(ASTNode):
+class ExpressionList(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
-class Condition2(ASTNode):
+        super().__init__(values)
+
+class Expression(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class Condition3(ASTNode):
+class Condition(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class ArithmeticOperators(ASTNode):
+class Condition1(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
-
-class AddOperand(ASTNode):
+        super().__init__(values)
+class Condition2(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class MulOperand(ASTNode):
+class Condition3(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class TerminalOperand(ASTNode):
+class ArithmeticOperators(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
 
-class Literal(ASTNode):
+class AddOperand(initialize):
     def __init__(self, values):
-        for i, value in enumerate(values):
-            setattr(self, f'{i}', value)
+        super().__init__(values)
+
+class MulOperand(initialize):
+    def __init__(self, values):
+        super().__init__(values)
+
+class TerminalOperand(initialize):
+    def __init__(self, values):
+        super().__init__(values)
+
+class Literal(initialize):
+    def __init__(self, values):
+        super().__init__(values)
 
 
 
@@ -170,10 +159,28 @@ class Literal(ASTNode):
 
 
 
+# <-----------------------------------Data Types------------------------------------>
 
+class int(initialize):
+    def __init__(self, value):
+        self.value = value
+        print(self.value)
 
+class string(initialize):
+    def __init__(self, value):
+        self.value = value
+        print(self.value)
 
+class bool(initialize):
+    def __init__(self, value):
+        self.value = value
+        print(self.value)
 
+# <-----------------------------------Type Classes------------------------------------>
+class base_object_class:
+    def _repr_(self):
+        return self._class.name_
 
-
-
+class Number(base_object_class):
+    def _init_(self):
+        pass 

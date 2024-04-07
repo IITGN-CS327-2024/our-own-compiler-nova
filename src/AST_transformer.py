@@ -27,7 +27,24 @@ class CustomTransformer(lark.Transformer):
         if len(adj_nodes) == 1:
             return adj_nodes
         return node_class(adj_nodes)
+    
 
+    ################################
+    ###########TERMINALS############
+    ################################
+    # def NUMBER(self, value):
+    #     return def_node_classes.int(value)
+    
+    # def STRING(self, value):
+    #     return def_node_classes.string(value)
+
+    # def BOOLEAN(self, value):
+    #     return def_node_classes.boolean(value)
+
+
+    ################################
+    #########NON-TERMINALS##########
+    ################################
     def start(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
         return def_node_classes.Start(adj_nodes)
@@ -38,9 +55,29 @@ class CustomTransformer(lark.Transformer):
     
     def variable_declaration_initialization(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
-        adj_nodes = required_tokens(adj_nodes, keywords, endOfStmt)
+        not_required = ['var', ';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.VariableDeclarationInitialization(adj_nodes)
     
+    ##############################
+    ###########UPDATES############
+    ##############################
+    def variable_declaration(self, adj_nodes):
+        adj_nodes = single_list(adj_nodes)
+        not_required = ['var', ';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
+        return def_node_classes.VariableDeclaration(adj_nodes)
+    
+    def variable_initialization(self, adj_nodes):
+        adj_nodes = single_list(adj_nodes)
+        not_required = ['var', ';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
+        return def_node_classes.VariableInitialization(adj_nodes)
+    ##############################
+    ########END_OF_UPDATES########
+    ##############################
+
+
     def function_call(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
         return def_node_classes.FunctionCall(adj_nodes)
@@ -50,6 +87,8 @@ class CustomTransformer(lark.Transformer):
     
     def conditional_statement(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
+        not_required = ['then', '(', ')', '{', '}', ';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.ConditionalStatement(adj_nodes)
     
     def return_statement(self, adj_nodes):
@@ -78,7 +117,7 @@ class CustomTransformer(lark.Transformer):
     
     def try_catch_statement(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
-        print(adj_nodes)
+        # print(adj_nodes)
         return def_node_classes.TryCatchStatement(adj_nodes)
     
     def throw_statement(self, adj_nodes):
@@ -93,6 +132,8 @@ class CustomTransformer(lark.Transformer):
     
     def print_statement(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
+        not_required = ['(', ')', ';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.PrintStatement(adj_nodes)
     
 #   <-------------------------------------------------------------------------------------------->
