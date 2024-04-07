@@ -85,7 +85,7 @@ class CustomTransformer(lark.Transformer):
         return def_node_classes.FunctionCall(adj_nodes)
     
     def function_declaration(self, adj_nodes):
-        not_required = ['(', ')', '::', '{', '}', ';']
+        not_required = ['(', ')', '::', '{', '}', ';', ',']
         adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.FunctionDeclaration(adj_nodes)
     
@@ -115,6 +115,8 @@ class CustomTransformer(lark.Transformer):
     
     def tuple_declaration(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
+        not_wanted = ['(', ')', 'var', 'tuple', ';', ',']
+        adj_nodes = required_tokens(adj_nodes, not_wanted)
         return def_node_classes.TupleDeclaration(adj_nodes)
     
     def array_operation(self, adj_nodes):
@@ -123,17 +125,22 @@ class CustomTransformer(lark.Transformer):
     
     def try_catch_statement(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
-        # print(adj_nodes)
+        not_required = ['{', '}', ';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.TryCatchStatement(adj_nodes)
     
     def throw_statement(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
+        not_required = [';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.ThrowStatement(adj_nodes)
     
     def catch_block(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
         if len(adj_nodes) == 0:
             return None
+        not_required = ['(', ')', '{', '}', ';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.CatchBlock(adj_nodes)
     
     def print_statement(self, adj_nodes):
