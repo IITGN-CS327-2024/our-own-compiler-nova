@@ -107,6 +107,8 @@ def lexer(code : str, tokens : list):
                     tokens.append(["BOOLEAN", identifier_value])
                 elif identifier_value in array_op:
                     tokens.append(["ARRAY_OPERATION", identifier_value])
+                elif identifier_value in error_type:
+                    tokens.append(["ERROR_TYPE", identifier_value])
                 elif identifier_value in keywords:
                     tokens.append(["KEYWORD", identifier_value])
                 elif identifier_value in logical_operators:
