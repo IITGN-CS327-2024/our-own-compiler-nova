@@ -360,38 +360,44 @@ class sementicAnalyzer(nodeVisitor):
         # Extracting parameters and their types
         parameters = []
         parameters_type = []
-        # Parameters and their types are among the children, starting from index 2 up to the second-to-last index
-        # The last two children are return_type and function_body, respectively
-        for i in range(2, len(node.children) - 3, 2):
-            param_type_token = node.children[i]  # Parameter type
-            param_name_token = node.children[i + 1]  # Parameter name
-            param_type = self.get_data_type(param_type_token)
-            param_name = param_name_token.value
 
-            parameters.append(param_name)
-            parameters_type.append(param_type)
+        if node.children[2] == None:
+            pass
 
-        # Extracting return type
-        return_type_token = node.children[-2]  # The second-to-last child is the return type
-        return_type = self.get_data_type(return_type_token)
+        else:
+            # Parameters and their types are among the children, starting from index 2 up to the second-to-last index
+            # The last two children are return_type and function_body, respectively
+            for i in range(2, len(node.children) - 3, 2):
+                param_type_token = node.children[i]  # Parameter type
+                param_name_token = node.children[i + 1]  # Parameter name
+                param_type = self.get_data_type(param_type_token)
+                param_name = param_name_token.value
 
-        # Constructing the function record for the symbol table
-        function_data = {
-            'type': 'function',
-            'token': function_name_token,
-            'parameters': parameters,
-            'parameters_type': parameters_type,
-            'return_type': return_type
-        }
+                parameters.append(param_name)
+                parameters_type.append(param_type)
+
+            # Extracting return type
+            return_type_token = node.children[-2]  # The second-to-last child is the return type
+            return_type = self.get_data_type(return_type_token)
+
+            # Constructing the function record for the symbol table
+            function_data = {
+                'type': 'function',
+                'token': function_name_token,
+                'parameters': parameters,
+                'parameters_type': parameters_type,
+                'return_type': return_type
+            }
 
         # Inserting the function declaration into the symbol table
         self.symbol_table.insert(function_data)
-        print(self.symbol_table.symbol_table)
+        print("inside func declaration:", self.symbol_table.symbol_table)
 
         # Incrementing scope for the function body
         self.symbol_table.incremnet_scope()
 
         # Visiting the function body
+        # for 
         function_body = node.children[-1]  # The last child is the function body
         self.visit(function_body)
 
@@ -416,7 +422,7 @@ class sementicAnalyzer(nodeVisitor):
         # expression_list node will not appear in the ast since
         # the rule starts with an underscore in the grammar.
         num_parameters_in_function_call = len(node.children[1 : ])
-        
+
         # Need to check if the number of parameters is equal to the number of parameters in the function declaration
         if len(data['parameters']) != num_parameters_in_function_call:
             raise Exception(
@@ -539,4 +545,32 @@ class sementicAnalyzer(nodeVisitor):
         # if left.type != "BOOLEAN" or right.type != "BOOLEAN":
         #     raise Exception(f"Type mismatch: {left.type} and {right.type}")
         # return node.children[0].type
+        return None
+    
+    def node_ReturnStatement(self, node):
+        '''
+            Structure in AST: ['return', 'value']
+        '''
+
+        print(node.children[1].type)
+        # Need to check the type of the value to be returned
+        if type(node.children[1]) != lark.lexer.Token:
+            return_value = self.visit(node.children[1])
+            if return_value == None:
+                raise Exception(
+                    f"Function {node.children[1].children[0]} does not return any value. Return type is void."
+                )
+            
+        elif node.children[1].type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_current_scope(node.children[1])
+            if data == None:
+                data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
+                if data == None:
+                    raise Exception(
+                        f"Variable '{node.children[1]}' not declared"
+                    )
+            return_value = data['data_type']
+
+        if node.children[1].type != 'NUMBER' and node.children[1].type != 'STRING' and node.children[1].type != 'BOOLEAN':
+            raise Exception(f"Invalid data type {node.children[1].type}, to return")
         return None

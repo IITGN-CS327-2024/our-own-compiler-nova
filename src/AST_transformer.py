@@ -97,6 +97,8 @@ class CustomTransformer(lark.Transformer):
     
     def return_statement(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
+        not_required = [':', ';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.ReturnStatement(adj_nodes)
     
     def loop_statement(self, adj_nodes):
