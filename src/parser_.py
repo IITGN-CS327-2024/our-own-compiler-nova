@@ -172,6 +172,16 @@ this_module = sys.modules[__name__]
 #                                         | IDENTIFIER ASSIGN assigned_value END_OF_STMT
 
 
+
+
+
+# try_catch_statement: KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT catch_block
+
+# catch_block: KEYWORD LEFT_PARENTHESIS IDENTIFIER RIGHT_PARENTHESIS LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT catch_block
+#             |
+
+# throw_statement: KEYWORD IDENTIFIER END_OF_STMT
+
 grammar = """
     start: statement*
 
@@ -199,7 +209,7 @@ grammar = """
 
     variable_initialization: IDENTIFIER ASSIGN assigned_value END_OF_STMT
 
-    function_declaration: KEYWORD IDENTIFIER LEFT_PARENTHESIS _parameter_list RIGHT_PARENTHESIS DOUBLE_COLON KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
+    function_declaration: KEYWORD IDENTIFIER LEFT_PARENTHESIS _parameter_list RIGHT_PARENTHESIS DOUBLE_COLON KEYWORD LEFT_BRACES statement+ RIGHT_BRACES END_OF_STMT
 
 
     conditional_statement: KEYWORD LEFT_PARENTHESIS expression RIGHT_PARENTHESIS KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT KEYWORD KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT
@@ -223,10 +233,10 @@ grammar = """
 
     try_catch_statement: KEYWORD LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT catch_block
 
-    catch_block: KEYWORD LEFT_PARENTHESIS IDENTIFIER RIGHT_PARENTHESIS LEFT_BRACES statement* RIGHT_BRACES END_OF_STMT catch_block
+    catch_block: KEYWORD LEFT_PARENTHESIS ERROR_TYPE RIGHT_PARENTHESIS LEFT_BRACES statement+ RIGHT_BRACES END_OF_STMT catch_block
                 |
 
-    throw_statement: KEYWORD IDENTIFIER END_OF_STMT
+    throw_statement: KEYWORD ERROR_TYPE END_OF_STMT
 
     ERROR_TYPE: "TypeError"
                 | "DivisionByZeroError" 
@@ -451,4 +461,4 @@ if __name__ == "__main__":
     graph.render('AST', format='png', view=True)
 
     sementic_analyzer = sementicAnalyzer()
-    sementic_analyzer.visit_Start(ast)
+    sementic_analyzer.node_Start(ast)
