@@ -1,6 +1,19 @@
 import def_node_classes
 import lark
 
+# Variable and function name should not be the same
+
+'''
+    DONE:
+        - Variable Declaration and Initialization
+        - Variable Declaration
+        - Variable Initialization
+        - Print Statement
+        - Conditional Statement
+        - Loop Statement
+        - Function Call
+'''
+
 
 class symbolTable:
     def __init__(self):
@@ -190,13 +203,21 @@ class sementicAnalyzer(nodeVisitor):
     def visit_PrintStatement(self, node):
         '''
             Structure in AST: ['print', 'value_to_be_printed']
+            It can print the values of the type NUMBER, STRING, and BOOLEAN
+            declared variables and return values of functions
         '''
 
         # Need to check the type of the value to be printed
-        if type(node.children[1]) != lark.lexer.Token:
+        # if type(node.children[1]) != lark.lexer.Token:
+        if node.children[1].__class__.__name__ == 'FunctionCall':
             value_to_print = self.visit(node.children[1])
+            if value_to_print == None:
+                raise Exception(
+                    f"Function {node.children[1].children[0]} does not return any value. Return type is void."
+                )
         # IDENTIFIER in case of a variable or a function call
         elif node.children[1].type == 'IDENTIFIER':
+            # In case of a function body, try catch block, etc the value to be printed can be inside the currrent scope
             data = self.symbol_table.lookup_current_scope(node.children[1])
             if data == None:
                 # If the variable is not declared in the current scope then need to check in the previous scopes
@@ -227,7 +248,6 @@ class sementicAnalyzer(nodeVisitor):
 
         # Need to increment the scope
         self.symbol_table.incremnet_scope()
-        print(self.symbol_table.symbol_table)
 
         # If it is a non-terminal node then need to recursively visit it
         if type(node.children[1]) != lark.lexer.Token:
@@ -235,13 +255,12 @@ class sementicAnalyzer(nodeVisitor):
 
         # IDENTIFIER in case of a variable or a function call
         elif node.children[1].type == 'IDENTIFIER':
-            data = self.symbol_table.lookup_current_scope(node.children[1])
+            # Since, it is a part of the condition therefore, it should be outside the current scope
+            data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
             if data == None:
-                data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
-                if data == None:
-                    raise Exception(
-                        f"Variable '{node.children[1]}' is not declared"
-                    )
+                raise Exception(
+                    f"Variable '{node.children[1]}' is not declared"
+                )
             condition = data['data_type']
 
         # Here, it is checking for the simplest case i.e., NUMBERS, and BOOLEAN value
@@ -261,5 +280,110 @@ class sementicAnalyzer(nodeVisitor):
 
         # At the end we will exit the scope.
         # Therefore, need to decrement the scope
+        print(self.symbol_table.symbol_table)
         self.symbol_table.decrement_scope()
         return None
+    
+
+    def visit_LoopStatement(self, node):
+        '''
+            Structure in AST: ['loop', 'condition', 'statement']
+        '''
+
+        # Need to increment the scope
+        self.symbol_table.incremnet_scope()
+
+        print(type(node.children[1]))
+        # If it is a non-terminal node then need to recursively visit it
+        if type(node.children[1]) != lark.lexer.Token:
+            condition = self.visit(node.children[1])
+
+        # IDENTIFIER in case of a variable only. It can't be a function call
+        elif node.children[1].type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
+            if data == None:
+                raise Exception(
+                    f"Variable '{node.children[1]}' is not declared"
+                )
+            condition = data['data_type']
+
+        # Here, it is checking for the simplest case i.e., NUMBERS, and BOOLEAN value
+        else:
+            condition = node.children[1].type
+
+        # The condition should be of the type BOOLEAN or NUMBER after evaluating it
+        if condition != 'BOOLEAN' and condition != 'NUMBER':
+            raise Exception(f"Invalid data type '{condition}', for the condition")
+
+        # Now visit the statement block
+        self.visit(node.children[2])
+
+        # At the end we will exit the scope.
+        # Therefore, need to decrement the scope
+        print(self.symbol_table.symbol_table)
+        self.symbol_table.decrement_scope()
+        return None
+
+
+    # TODO: Testing left for function call
+    def visit_FunctionCall(self, node):
+        '''
+            Structure in AST: ['function_name', 'expression_list']
+        '''
+        
+        # Check if the function is declared in any of the scopes
+        data = self.symbol_table.lookup_current_scope(node.children[0])
+        if data == None:
+            data = self.symbol_table.lookup_all_prev_scopes(node.children[0])
+            if data == None:
+                raise Exception(
+                    f"Function '{node.children[0]}' not declared"
+                )
+
+        # expression_list node will not appear in the ast since
+        # the rule starts with an underscore in the grammar.
+        num_parameters_in_function_call = len(node.children[1 : ])
+
+
+        # Need to check if the number of parameters is equal to the number of parameters in the function declaration
+        if len(data['parameters']) != num_parameters_in_function_call:
+            raise Exception(
+                f"Number of parameters in the function call '{node.children[0]}' is not equal to the number of parameters in the function declaration"
+            )
+        
+        '''
+            Blueprint of the record for a function_declaration:
+                - 'type' : 'function',
+                - 'token' : function_name,
+                - 'parameters' : list of parameters,
+                - 'parameters_type' : list of respective parameters type,
+                - 'return_type' : return_type
+        '''
+
+        # Need to check the type of the parameters
+        for i, parameter in enumerate(node.children[2 : ]):
+            if type(parameter) != lark.lexer.Token:
+                parameter_type = self.visit(parameter)
+            # Here onwards all are terminals
+            elif parameter.type == 'IDENTIFIER':
+                data = self.symbol_table.lookup_current_scope(parameter)
+                if data == None:
+                    data = self.symbol_table.lookup_all_prev_scopes(parameter)
+                    if data == None:
+                        raise Exception(
+                            f"Variable '{parameter}' not declared"
+                        )
+                parameter_type = data['data_type']
+            # Simplest case: NUMBERS, BOOLEAN, and STRING
+            else:
+                parameter_type = parameter.type
+
+            # The type should match with the type of the parameter in the function declaration
+            if parameter_type != data['parameters_type'][i]:
+                raise Exception(
+                    f"Type mismatch in the parameter {i+1} of the function call '{node.children[0]}'"
+                )
+            
+        # The return type of the function call would be the return type of the function declaration
+        # As, the values can be stored, returned, printed, or utilized in any other way
+        return data['return_type']
