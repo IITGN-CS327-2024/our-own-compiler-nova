@@ -85,9 +85,14 @@ class CustomTransformer(lark.Transformer):
         return def_node_classes.FunctionCall(adj_nodes)
     
     def function_declaration(self, adj_nodes):
-        not_required = ['(', ')', '::', '{', '}', ';', ',']
+        not_required = ['(', ')', '::', ';', ',']
         adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.FunctionDeclaration(adj_nodes)
+    
+    def function_body(self, adj_nodes):
+        not_required = ['{', '}']
+        adj_nodes = required_tokens(adj_nodes, not_required)
+        return def_node_classes.FunctionBody(adj_nodes)
     
     def conditional_statement(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)

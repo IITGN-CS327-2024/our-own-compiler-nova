@@ -23,6 +23,12 @@ import lark
 '''
 
 
+'''
+TODO: enum 
+handling multiple return statements
+'''
+
+
 class symbolTable:
     def __init__(self):
         # The inner list would contain the data of the current scope
@@ -79,16 +85,17 @@ class nodeVisitor:
         visitor = getattr(self, method_name, self.generic_visit)
         # calls the required method on the node in the sementicAnalyzer class and
         # returns the result. If the method is not found then it would call the generic_visit method
+        # print("method name:", method_name)
         return visitor(node)
 
     def generic_visit(self, node):
         raise Exception(
             f'No node_{node.__class__.__name__} method found in sementicAnalyzer')
 
-
 class sementicAnalyzer(nodeVisitor):
     def __init__(self) -> None:
         self.symbol_table = symbolTable()
+        self.count = 0
 
     def get_data_type(self, node):
         # print("\nget_data_type:", node.__class__.__name__)
@@ -116,9 +123,14 @@ class sementicAnalyzer(nodeVisitor):
             self.visit(child)
 
     def node_Statement(self, node):
+        self.count += 1
+        if self.count == 5:
+            return None 
+        
+        return_value = None
         for child in node.children:
-            self.visit(child)
-
+            return_value = return_value or self.visit(child)
+        return return_value
 
     def node_VariableDeclarationInitialization(self, node):
         '''
@@ -143,10 +155,10 @@ class sementicAnalyzer(nodeVisitor):
         ###############################
         ####### Check for the type######
         ###############################
-        print("node.children[0]", node.children[0].value)
-        print("node.children[1]", node.children[1].type)
-        print("node.children[3]", node.children[3].type)
-        print(type(node.children[3]))
+        #print("node.children[0]", node.children[0].value)
+        #print("node.children[1]", node.children[1].type)
+        #print("node.children[3]", node.children[3].type)
+        #print(type(node.children[3]))
         ''' 
             Findings:
                 - all the temnials would be of the type lark.lexer.Token
@@ -157,7 +169,7 @@ class sementicAnalyzer(nodeVisitor):
         ###############################
         ###############################
         self.symbol_table.insert(data)
-        print("\nSYMBOL TABLE:", self.symbol_table.symbol_table, "\n")
+        print("\nInside VariableDeclInit:\n", self.symbol_table.symbol_table, "\n")
 
         # Need to verify the type of the assigned value with the type declaration of the variable
         assigned_value = data['value']
@@ -188,7 +200,7 @@ class sementicAnalyzer(nodeVisitor):
             'data_type' : self.get_data_type(node.children[0])
         }
         self.symbol_table.insert(data)
-        print("\nSYMBOL TABLE:", self.symbol_table.symbol_table, "\n")
+        print("\nVariable Decl:\n", self.symbol_table.symbol_table, "\n")
         return None
 
     def node_VariableInitialization(self, node):
@@ -212,7 +224,7 @@ class sementicAnalyzer(nodeVisitor):
             'data)type' : data['type']
         }
         self.symbol_table.insert(data)
-        print("\nSYMBOL TABLE:", self.symbol_table.symbol_table, "\n")
+        print("\nVarible Init:\n", self.symbol_table.symbol_table, "\n")
         return None
     
 
@@ -246,6 +258,7 @@ class sementicAnalyzer(nodeVisitor):
                     raise Exception(
                         f"Variable {node.children[1]} not declared in the current scope"
                     )
+            print(data)
             value_to_print = data['data_type']
         else:
             # Here, the parameter is a terminal
@@ -257,7 +270,7 @@ class sementicAnalyzer(nodeVisitor):
             raise Exception(f"Invalid data type {value_to_print}, to print")
         return None
     
-
+#TODO: use unit
     def node_ConditionalStatement(self, node):
         '''
             Structure in AST: ['if', 'condition', 'statemnt', 'else', 'statement']
@@ -298,8 +311,9 @@ class sementicAnalyzer(nodeVisitor):
 
         # At the end we will exit the scope.
         # Therefore, need to decrement the scope
-        print(self.symbol_table.symbol_table)
+        print("\nInside condition scope:\n", self.symbol_table.symbol_table)
         self.symbol_table.decrement_scope()
+        print("\nOutside condition scope:\n", self.symbol_table.symbol_table)
         return None
     
 
@@ -338,19 +352,20 @@ class sementicAnalyzer(nodeVisitor):
 
         # At the end we will exit the scope.
         # Therefore, need to decrement the scope
-        print(self.symbol_table.symbol_table)
+        print("\nInside loop scope:\n", self.symbol_table.symbol_table)
         self.symbol_table.decrement_scope()
+        print("\nOutside loop scope:\n", self.symbol_table.symbol_table)
         return None
 
 
     def node_FunctionDeclaration(self, node):
         '''
             Assuming the structure of node.children for a function declaration is:
-            [keyword fn, function_name, [parameter_list], return_type, function_body]
+            [keyword fn, function_name, (, parameter_list, ), function_body]
         '''
         
         # Extracting function name
-        function_name_token = node.children[1]  # Assuming function name is the second child
+        function_name_token = node.children[1]  # Function name is the second child
         function_name = function_name_token.value
 
         # Check if the function or a variable with the same name is already declared in the current scope
@@ -391,18 +406,43 @@ class sementicAnalyzer(nodeVisitor):
 
         # Inserting the function declaration into the symbol table
         self.symbol_table.insert(function_data)
-        print("inside func declaration:", self.symbol_table.symbol_table)
+        # print("inside func declaration:", self.symbol_table.symbol_table)
 
         # Incrementing scope for the function body
         self.symbol_table.incremnet_scope()
 
         # Visiting the function body
-        # for 
         function_body = node.children[-1]  # The last child is the function body
-        self.visit(function_body)
+        return_type_in_body = self.visit(function_body)
+
+        # Checking the type of return_value with the function signature
+        # Case-1: Function does not return anything but the function body returns something
+        if return_type == 'VOID':
+            if return_type_in_body != None:
+                raise Exception(f"Function '{function_name}' should not return any value")
+            
+        # Case-2: Function returns something but the function body does not return anything
+        if return_type_in_body == None:
+            raise Exception(f"Function '{function_name}' should return a value of type '{return_type}'")
+        
+        # Case-3: Both the function signature and body return something
+        if return_type_in_body != return_type:
+            raise Exception(f"Return type mismatch in function '{function_name}'. Expected '{return_type}', got '{return_type_in_body}'")
 
         # Exiting the function scope
         self.symbol_table.decrement_scope()
+
+
+    def node_FunctionBody(self, node):
+        '''
+            Structure in AST: ['statement']
+        '''
+        # Visiting the statements inside the function body
+        # Inside the function body the return type is returned
+        return_type = None
+        for child in node.children:
+            return_type = return_type or self.visit(child)
+        return return_type
 
 
     def node_FunctionCall(self, node):
@@ -438,7 +478,7 @@ class sementicAnalyzer(nodeVisitor):
                 - 'return_type' : return_type
         '''
 
-        print("inside functionCall:", data)
+        # print("inside functionCall:", data)
         # Need to check the type of the parameters
         for i, parameter in enumerate(node.children[1 : ]):
             if type(parameter) != lark.lexer.Token:
@@ -468,6 +508,41 @@ class sementicAnalyzer(nodeVisitor):
         return data['return_type']
 
 
+    def node_ReturnStatement(self, node):
+        '''
+            Structure in AST: ['return', 'value']
+        '''
+
+        #print("Return value type:", node.children[1].type)
+        return_value = None
+        # Need to check the type of the value to be returned
+        if type(node.children[1]) != lark.lexer.Token:
+            return_value = self.visit(node.children[1])
+            if return_value == None:
+                raise Exception(
+                    f"Function {node.children[1].children[0]} does not return any value. Return type is void."
+                )
+            
+        elif node.children[1].type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_current_scope(node.children[1])
+            if data == None:
+                data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
+                if data == None:
+                    raise Exception(
+                        f"Variable '{node.children[1]}' not declared"
+                    )
+            return_value = data['data_type']
+
+        elif node.children[1].type == 'NUMBER' or node.children[1].type == 'STRING' or node.children[1].type == 'BOOLEAN':
+            return_value = node.children[1].type
+
+        # By the it has to be one of the primitive data types
+        # elif node.children[1].type != 'NUMBER' and node.children[1].type != 'STRING' and node.children[1].type != 'BOOLEAN':
+        else:
+            raise Exception(f"Invalid data type {node.children[1].type}, to return")
+        return return_value
+    
+
     def node_TryCatchStatement(self, node):
         '''
             Structure in AST: ['try', 'statement', 'catch_block']
@@ -484,7 +559,10 @@ class sementicAnalyzer(nodeVisitor):
 
         # At the end we will exit the scope.
         # Therefore, need to decrement the scope
+        print("\nInside try block:\n", self.symbol_table.symbol_table)
         self.symbol_table.decrement_scope()
+        print("\nOutside try block:\n", self.symbol_table.symbol_table)
+
         return None
     
 
@@ -547,30 +625,3 @@ class sementicAnalyzer(nodeVisitor):
         # return node.children[0].type
         return None
     
-    def node_ReturnStatement(self, node):
-        '''
-            Structure in AST: ['return', 'value']
-        '''
-
-        print(node.children[1].type)
-        # Need to check the type of the value to be returned
-        if type(node.children[1]) != lark.lexer.Token:
-            return_value = self.visit(node.children[1])
-            if return_value == None:
-                raise Exception(
-                    f"Function {node.children[1].children[0]} does not return any value. Return type is void."
-                )
-            
-        elif node.children[1].type == 'IDENTIFIER':
-            data = self.symbol_table.lookup_current_scope(node.children[1])
-            if data == None:
-                data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
-                if data == None:
-                    raise Exception(
-                        f"Variable '{node.children[1]}' not declared"
-                    )
-            return_value = data['data_type']
-
-        if node.children[1].type != 'NUMBER' and node.children[1].type != 'STRING' and node.children[1].type != 'BOOLEAN':
-            raise Exception(f"Invalid data type {node.children[1].type}, to return")
-        return None

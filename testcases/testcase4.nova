@@ -5,17 +5,17 @@ println(msg);
 fn genSum(int n) :: int {
     var int count = n;
     var int sum = 0;
-    loop (count) {
+    loop through (count > 0) {
         sum = sum + count;
         count = count - 1;
     };
     return : sum;
 };
 
-if (true) {
+if (true) then {
     var int sum = genSum(7);
     println(sum);
 };
-else{
+else then {
     println("nothing over here");
 };

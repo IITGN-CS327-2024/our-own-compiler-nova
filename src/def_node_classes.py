@@ -50,6 +50,10 @@ class FunctionDeclaration(initialize):
     def __init__(self, values):
         super().__init__(values)
 
+class FunctionBody(initialize):
+    def __init__(self, values):
+        super().__init__(values)
+
 class ConditionalStatement(initialize):
     def __init__(self, values):
         super().__init__(values)
