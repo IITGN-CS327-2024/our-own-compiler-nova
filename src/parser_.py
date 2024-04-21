@@ -89,6 +89,7 @@ grammar = """
 
     _parameter_list: DATA_TYPE IDENTIFIER 
                     | DATA_TYPE IDENTIFIER SEPERATOR _parameter_list 
+                    | ARRAY DATA_TYPE IDENTIFIER SEPERATOR _parameter_list
                     |
     
     assigned_value: expression 
@@ -102,7 +103,8 @@ grammar = """
                    |
                      
     expression: condition
-                | IDENTIFIER LEFT_BRACKET literal RIGHT_BRACKET
+                | | IDENTIFIER LEFT_BRACKET literal RIGHT_BRACKET
+                | IDENTIFIER LEFT_BRACKET literal RIGHT_BRACKET END_OF_STMT
                 | IDENTIFIER LEFT_BRACKET literal SEPERATOR literal RIGHT_BRACKET
                 | expression STRING_OPERATOR condition
                 | function_call
@@ -126,9 +128,12 @@ grammar = """
                 | add_operand MINUS mul_operand 
                 | mul_operand
 
-    mul_operand: mul_operand MULTIPLY terminal_operand 
-                | mul_operand DIVIDE terminal_operand 
-                | terminal_operand
+    mul_operand: mul_operand MULTIPLY modulo_operand 
+                | mul_operand DIVIDE modulo_operand 
+                | modulo_operand
+
+    modulo_operand: modulo_operand MODULO terminal_operand
+                    |terminal_operand
 
     terminal_operand: literal
                     | IDENTIFIER
@@ -168,6 +173,7 @@ grammar = """
     MINUS: "-"
     MULTIPLY: "*"
     DIVIDE: "/"
+    MODULO: "%"
 
     COMPARE_OPERATOR: ">" | "<" | ">=" | "<=" | "==" | "!="
     AND: "and"

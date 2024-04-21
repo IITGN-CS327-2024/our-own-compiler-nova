@@ -212,3 +212,21 @@ class codeGenerator(nodeVisitor):
         operation = node.children[1].value
 
         return f'{left} {operation} {right}'
+    
+    def node_ModuloOperand(self, node):
+        '''
+            Structure in AST: ['value', '+', 'value']
+        '''
+        if type(node.children[0]) != lark.lexer.Token:
+            left = self.visit(node.children[0])
+        else:
+            left = node.children[0].value
+
+        if type(node.children[2]) != lark.lexer.Token:
+            right = self.visit(node.children[2])
+        else:
+            right = node.children[2].value
+
+        operation = node.children[1].value
+
+        return f'{left} {operation} {right}'

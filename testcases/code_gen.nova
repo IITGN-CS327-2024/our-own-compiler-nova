@@ -13,3 +13,7 @@ fn mul(int a, int b) :: int {
 fn div(int a, int b) :: int {
     return : a / b;
 };
+
+fn mod(int a, int b) :: int {
+    return : a % b;
+};

@@ -149,6 +149,10 @@ class MulOperand(initialize):
     def __init__(self, values):
         super().__init__(values)
 
+class ModuloOperand(initialize):
+    def __init__(self, values):
+        super().__init__(values)
+
 class TerminalOperand(initialize):
     def __init__(self, values):
         super().__init__(values)

@@ -164,6 +164,8 @@ class CustomTransformer(lark.Transformer):
         return adj_nodes
 
     def expression(self, adj_nodes):
+        not_required = ['[', ']', ';']
+        adj_nodes = required_tokens(adj_nodes, not_required)
         return self.create_node(adj_nodes, def_node_classes.Expression)
     
     def condition(self, adj_nodes):
@@ -187,6 +189,9 @@ class CustomTransformer(lark.Transformer):
     
     def mul_operand(self, adj_nodes):
         return self.create_node(adj_nodes, def_node_classes.MulOperand)
+    
+    def modulo_operand(self, adj_nodes):
+        return self.create_node(adj_nodes, def_node_classes.ModuloOperand)
 
     def terminal_operand(self, adj_nodes):
         if len(adj_nodes) == 3:

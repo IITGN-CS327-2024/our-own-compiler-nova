@@ -55,6 +55,15 @@ class symbolTable:
                         if entry['parameters'][i] == token:
                             return entry, i
                         
+        for i in range(second_last_index, -1, -1):
+            for entry in self.symbol_table[i]:
+                if entry['type'] == type:
+
+                    # Now, need to loop over the parameters of the function
+                    for i in range(len(entry['array_parameters'])):
+                        if entry['array_parameters'][i] == token:
+                            return entry, i
+                        
         return None, 0
                     
 
@@ -523,6 +532,8 @@ class sementicAnalyzer(nodeVisitor):
         # Extracting parameters and their types
         parameters = []
         parameters_type = []
+        array_parameters = []
+        array_parameters_type = []
 
         if node.children[2] == None:
             pass
@@ -530,18 +541,23 @@ class sementicAnalyzer(nodeVisitor):
         else:
             # Parameters and their types are among the children, starting from index 2 up to the second-to-last index
             # The last two children are return_type and function_body, respectively
-            for i in range(2, len(node.children) - 3, 2):
-                param_type_token = node.children[i]  # Parameter type
-                param_name_token = node.children[i + 1]  # Parameter name
-                # print(isinstance(param_type_token, lark.lexer.Token), param_name_token)
-                # param_type = self.get_data_type(param_type_token)
-                # param_name = param_name_token.value
 
-                # parameters_type.append(param_type)
-                # parameters.append(param_name)
+            i = 2
+            while i < len(node.children) - 3:
+                print(i, node.children[i].type)
 
-                parameters_type.append(param_type_token)
-                parameters.append(param_name_token)
+                if node.children[i].type == 'ARRAY':
+                    array_parameters.append(node.children[i + 2])
+                    array_parameters_type.append(node.children[i + 1])
+                    i = i + 3
+                    # print(node.children[i])
+                else:
+                    # print(node.children[i])
+                    param_type_token = node.children[i]  # Parameter type
+                    param_name_token = node.children[i + 1]  # Parameter name
+                    parameters_type.append(param_type_token)
+                    parameters.append(param_name_token)
+                    i = i + 2
 
             # Extracting return type
             return_type_token = node.children[-2]  # The second-to-last child is the return type
@@ -554,6 +570,8 @@ class sementicAnalyzer(nodeVisitor):
                 'token': function_name_token,
                 'parameters': parameters,
                 'parameters_type': parameters_type,
+                'array_parameters': array_parameters,
+                'array_parameters_type': array_parameters_type,
                 'return_type': return_type
             }
 
@@ -1026,4 +1044,96 @@ class sementicAnalyzer(nodeVisitor):
         else:
             raise Exception(f"Type mismatch: {left.type} and {right.type}")
 
-   
+    def node_ModuloOperand(self, node):
+        '''
+            Structure in AST: ['value', '%', 'value']
+        '''
+        # print("symbol table:", self.symbol_table.symbol_table)
+        # The values that can be added are of the type NUMBER only
+        if type(node.children[0]) == lark.lexer.Token:
+            left = node.children[0]
+        else:
+            left  = self.visit(node.children[0])
+
+        if type(node.children[2]) == lark.lexer.Token:
+            right = node.children[2]
+        else:
+            right = self.visit(node.children[2])
+        
+
+
+        if left.type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_current_scope(left)
+            if data == None:
+                data = self.symbol_table.lookup_all_prev_scopes(left)
+                if data == None:
+                    data = self.symbol_table.lookup_prev_func_scope(left)
+                    if data == None:
+                        raise Exception(
+                            f"Variable '{left}' not declared"
+                        )
+                    else:
+                        data, i = data
+                        left = data['parameters_type'][i]
+                else:
+                    left = data['data_type']
+            else:
+                left = data['data_type']
+
+
+        if right.type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_current_scope(right)
+            if data == None:
+                data = self.symbol_table.lookup_all_prev_scopes(right)
+                if data == None:
+                    data = self.symbol_table.lookup_prev_func_scope(right)
+                    if data == None:
+                        raise Exception(
+                            f"Variable '{right}' not declared"
+                        )
+                    else:
+                        data, i = data
+                        right = data['parameters_type'][i]
+                else:
+                    right = data['data_type']
+            else:
+                right = data['data_type']
+
+        # print("left:", left, "right:", right)
+
+        if (left.type == "NUMBER" and right.type == "NUMBER") or (left.value == "int" and right.value == "int"):
+            return left
+        elif (left.type == "NUMBER" and right.value == "int") or (left.value == "int" and right.type == "NUMBER"):
+            return left 
+        else:
+            raise Exception(f"Type mismatch: {left.type} and {right.type}")
+        
+
+    def node_Expression(self, node):
+        '''
+            Structure in AST: ['identifier', 'number']
+        '''
+
+        print("\n\n\n", self.symbol_table.symbol_table, "\n\n\n")
+        data = self.symbol_table.lookup_current_scope(node.children[0])
+        if data == None:
+            data = self.symbol_table.lookup_all_prev_scopes(node.children[0])
+            if data == None:
+                data = self.symbol_table.lookup_prev_func_scope(node.children[0])
+                if data[0] == None:
+                    raise Exception(
+                        f"Variable '{node.children[0]}' not declared"
+                    )
+                else:
+                    data, i = data
+            else:
+                data = data['data_type']
+        else:
+            data = data['data_type']
+
+        
+        if node.children[1].type != 'NUMBER':
+            raise Exception(f"Invalid data type {node.children[1].type}")
+        
+        print("\n\n\n", data, "\n\n\n")
+        return data['array_parameters_type'][i]

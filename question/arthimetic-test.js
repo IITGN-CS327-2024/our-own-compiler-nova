@@ -8,7 +8,7 @@ const assert = require('node:assert');
 
 (async () => {
     // Load the WASM file and instantiate it.
-    const bytes = fs.readFileSync(path.join(__dirname, 'wasm', 'arithmetic_custom.wasm'));
+    const bytes = fs.readFileSync(path.join(__dirname, 'wasm', 'generated_code.wasm'));
     // const bytes = fs.readFileSync(path.join(__dirname, 'wasm', 'arthimetic.wasm'));
     let obj = await WebAssembly.instantiate(new Uint8Array(bytes));
 
@@ -26,9 +26,9 @@ const assert = require('node:assert');
     result = obj.instance.exports.div(a, b);
     console.log(`${a} / ${b} = ${result}`);
     assert.equal(result, Math.trunc(a/b));
-    // result = obj.instance.exports.mod(a, b);
-    // console.log(`${a} % ${b} = ${result}`);
-    // assert.equal(result, a % b);
+    result = obj.instance.exports.mod(a, b);
+    console.log(`${a} % ${b} = ${result}`);
+    assert.equal(result, a % b);
 
 })();
 
