@@ -9,7 +9,7 @@ void = ["void"]
 special_keywords = ["var", "println", "array", "tuple", "if", "else", "then", "loop", "through", "fn", "return", "try", "catch", "throw", "BREAK", "CONTINUE"]
 
 error_type = ["TypeError", "DivisionByZeroError", "NameError", "IndexError", "e"]
-operators = ["+", "-", "*", "/", "==", "=", "<", ">", "<=", ">=", "!=", "!", "|", "."]
+operators = ["+", "-", "*", "/", "%", "==", "=", "<", ">", "<=", ">=", "!=", "!", "|", "."]
 logical_operators = ["and", "or", "not"]
 whitespace = [" ", "\t"]
 array_op = ["length", "head", "tail", "cons"]
@@ -141,11 +141,11 @@ def lexer(code : str, tokens : list):
                 cur_pos += len(seperator_value)
 
             # plus, minus, multiply, divide
-            elif re.match(pattern="\+|\-|\*|\/", string=word):
-                match = re.match(pattern="\+|\-|\*|\/", string=word)
+            elif re.match(pattern="\+|\-|\*|\/|\%", string=word):
+                match = re.match(pattern="\+|\-|\*|\/|\%", string=word)
                 operator_value = match.group()
                 # print(operator_value)
-                operator_to_token = {'+': 'PLUS', '-': 'MINUS', '*': 'MULTIPLY', '/': 'DIVIDE'}
+                operator_to_token = {'+': 'PLUS', '-': 'MINUS', '*': 'MULTIPLY', '/': 'DIVIDE', '%': 'MODULO'}
                 tokens.append([operator_to_token[operator_value], operator_value])
                 cur_pos += len(operator_value)
 
