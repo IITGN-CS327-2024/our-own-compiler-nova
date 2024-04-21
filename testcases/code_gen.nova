@@ -1,0 +1,15 @@
+fn add(int a, int b) :: int {
+    return : a + b;
+};
+
+fn sub(int a, int b) :: int {
+    return : a - b;
+};
+
+fn mul(int a, int b) :: int {
+    return : a * b;
+};
+
+fn div(int a, int b) :: int {
+    return : a / b;
+};

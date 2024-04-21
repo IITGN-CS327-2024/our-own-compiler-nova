@@ -153,11 +153,11 @@ Nova supports six types of comparison operators: >, <, >=, <=, !=, ==
 Branching with if-else is similar to other languages. The condition should be surrounded by parentheses, and the code that needs to be executed inside should be inside curly braces, i.e., a block statement.  
 
 ```
-if(condition) {  
-//code block
+if (condition) then {  
+  //code block
 };  
-else {  
-//code block 
+else then {  
+  //code block 
 };
 ```
 If the condition inside the if block turns out to be true then only the if code block gets executed. Otherwise, only else code block gets executed.  
@@ -167,7 +167,7 @@ If the condition inside the if block turns out to be true then only the if code 
 In most of the languages, there is support for 2 types of loops while and for. In Nova, there is only one with the keyword loop and it works like a while loop in most of the languages. The code block inside will be looped till the condition stays true.  
 
 ```
-loop(condition) {
+loop through (condition) {
 // block of code  
 };
 ```
@@ -195,15 +195,15 @@ To define any function in Nova Language, the syntax is as follows:
 
 ```
 fn <function_name>(parameters) :: <return datatype / void> {
-//function body  
-return <value>;
+  //function body  
+  return : <value>;
 };
 ```
 
 ```
 fn computeSum(int num1, int num2) :: int{
    var int sum = num1 + num2;
-   return sum;
+   return : sum;
 };
 ```
 
@@ -273,7 +273,7 @@ Variables declares globally are accessible everywhere.:
 var int x= 3;
 
 fn check() :: void{
-   x= 5;
+   x = 5;
 };
 
 println(x) // prints 5
@@ -288,14 +288,14 @@ Syntax for try-catch:
 
 ```
 try {
-// code that may throw an exception  
+  // code that may throw an exception  
 };  
-catch(errorType) {  
-// handling division by zero error
-println("Error: Division by zero");  
+catch (errorType) {  
+  // handling division by zero error
+  println("Error: Division by zero");  
 };  
 catch(e) {
-//Default block for other errorTypes  
+  //Default block for other errorTypes  
 }; 
 ```
 
@@ -333,7 +333,7 @@ The `SyntaxError` is thrown when the code violates the language's syntax rules.
 **Example:**
 
 ```nova
-var int x = 10
+var int x = 10;
 // Missing semicolon at the end of the statement
 ```
 

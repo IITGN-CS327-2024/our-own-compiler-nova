@@ -1,0 +1,122 @@
+var int value2 = 9;      #decl_init
+#var int count;          #decl
+#count = 7;              #init
+#
+var string value1 = "hello";      #decl_init
+#
+#println("Hello");       # Terminal
+#println(value1);        # Non-terminal
+#
+## loop statements
+#loop through (true) {
+#    var string greetings = "Hello World";
+#    println("hello");
+#};
+#
+
+
+#return : 0;
+
+#function signature
+fn outer(int x, int y) :: int{
+    #var int value = 9;
+    return : value2;
+};
+#println(outer(2, 1));
+
+#var int result = 2 + 3 + 4;
+#var int flag = true and false or false;
+
+
+
+#testing if-else conditions
+#if (true) then {
+#    var bool truthValue = true;
+#    println(value);
+#};
+#else then {
+#    if (true) then {
+#        println("inside");
+#    };
+#    println("Below threshold");
+#};
+#
+## Testing out try-catch statements
+#try {
+#    println("here");
+#    throw TypeError;
+#};
+## Specific catch block
+#catch ( DivisionByZeroError ) {
+#    println("caught the exception");
+#};
+## Default catch block
+#catch (e) {
+#    println("Error");
+#};
+
+
+
+
+
+
+
+
+
+
+
+
+#if (true and false or false) then{
+#    println(value);
+#};
+
+
+
+#var int value = 9;
+#if (true) then {
+#    var bool truthValue = true;
+#    println(value);
+#};
+#else then {
+#    println("Below threshold");
+#};
+
+#value(nodes, edges, visited);
+
+#print();
+#count = 7;
+#var int declared;
+#callFunc();
+#if (value > 5) then {
+#    println(value);
+#}; else then {
+#    println("Below threshold");
+#};
+#
+#var tuple int temp = (5, 7, 3, 2);
+
+#try {
+#    println("here");
+#};
+#catch ( DivisionByZeroError ) {
+#    println("caught the exception");
+#};
+
+#catch (e) {
+#    println("Error");
+#};
+#
+#throw TypeError;
+#
+#
+#fn outer() :: int{
+#  var int x = 10; 
+#  
+#  fn inner(int x) :: void{
+#    println(x); # access x declared in outer
+#  };
+#  
+#  inner("hello");
+#  return : x;
+#};
+#var int y = outer();
