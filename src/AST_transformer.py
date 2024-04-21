@@ -118,11 +118,13 @@ class CustomTransformer(lark.Transformer):
     
     def array_declaration(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
+        not_required = ['var', 'array', '=', '[', ',', ']', ';', '(', ')']
+        adj_nodes = required_tokens(adj_nodes, not_required)
         return def_node_classes.ArrayDeclaration(adj_nodes)
     
     def tuple_declaration(self, adj_nodes):
         adj_nodes = single_list(adj_nodes)
-        not_wanted = ['(', ')', 'var', 'tuple', ';', ',']
+        not_wanted = ['var', 'tuple', '=', '(', ',', ')', ';']
         adj_nodes = required_tokens(adj_nodes, not_wanted)
         return def_node_classes.TupleDeclaration(adj_nodes)
     
@@ -187,6 +189,10 @@ class CustomTransformer(lark.Transformer):
         return self.create_node(adj_nodes, def_node_classes.MulOperand)
 
     def terminal_operand(self, adj_nodes):
+        if len(adj_nodes) == 3:
+            not_required = ['(', ')']
+            adj_nodes = required_tokens(adj_nodes, not_required)
+            return self.create_node(adj_nodes, def_node_classes.TerminalOperand)
         return self.create_node(adj_nodes, def_node_classes.TerminalOperand)
     
     def literal(self, adj_nodes):

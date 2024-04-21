@@ -19,6 +19,7 @@ this_module = sys.modules[__name__]
 
 # OBSERVATION: The grammar has epsilon productions due to which the AST can produce NONE as a terminal node
 # TODO: array declaration without expression
+# TODO: expression list
 grammar = """
     start: statement*
 
@@ -59,8 +60,8 @@ grammar = """
 
     loop_control_statement: BREAK END_OF_STMT | CONTINUE END_OF_STMT
 
-    array_declaration: VAR ARRAY DATA_TYPE IDENTIFIER ASSIGN LEFT_BRACKET _expression_list RIGHT_BRACKET END_OF_STMT
-                    |   VAR ARRAY LEFT_PARENTHESIS literal RIGHT_PARENTHESIS DATA_TYPE IDENTIFIER END_OF_STMT
+    array_declaration: VAR DATA_TYPE ARRAY IDENTIFIER ASSIGN LEFT_BRACKET _expression_list RIGHT_BRACKET END_OF_STMT
+                    |  VAR ARRAY LEFT_PARENTHESIS literal RIGHT_PARENTHESIS DATA_TYPE IDENTIFIER END_OF_STMT
     
     tuple_declaration: VAR TUPLE DATA_TYPE IDENTIFIER ASSIGN LEFT_PARENTHESIS _expression_list RIGHT_PARENTHESIS END_OF_STMT
 

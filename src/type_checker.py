@@ -173,7 +173,10 @@ class sementicAnalyzer(nodeVisitor):
 
         # Need to verify the type of the assigned value with the type declaration of the variable
         assigned_value = data['value']
-        if data['value'].type != data['data_type']:
+        if type(assigned_value) != lark.lexer.Token:
+            assigned_value = self.visit(assigned_value)
+        
+        if assigned_value.type != data['data_type']:
             raise Exception(
                 f"Type mismatch: {assigned_value} is not of type {data['data_type']}")
         else:
@@ -228,6 +231,108 @@ class sementicAnalyzer(nodeVisitor):
         return None
     
 
+    def node_ArrayDeclaration(self, node):
+        '''
+            Structure in AST: ['datatype', 'identifier', 'list_of_values']
+            Structure in AST: ['size', 'datatype', 'identifier']
+        '''
+        first_child = node.children[0]
+        if first_child.type == 'DATA_TYPE':
+            # Need to check if the variable is already declared in the current scope
+            data = self.symbol_table.lookup_current_scope(node.children[1])
+
+            if data != None:
+                raise Exception(
+                    f"Variable {node.children[1]} already declared in the current scope"
+                )
+            
+            # Type of values that must be there in the array
+            type_mapping = {'int': 'NUMBER', 'string': 'STRING', 'bool': 'BOOLEAN'}
+            req_type = type_mapping[first_child]
+
+            # Checking the type of the list_of_values
+            values = []
+            for i in range(2, len(node.children)):
+                data = node.children[i]
+                if data.type != req_type:
+                    raise Exception(
+                        f"Type mismatch: {data.type} is not of type {req_type}"
+                    )
+                values.append(data.value)
+
+            # Collecting the necessary information, for the symbol table
+            data = {
+                'type'      : 'array',
+                'token'     : node.children[1],
+                'value'     : values,
+                'data_type' : self.get_data_type(node.children[0])
+            }
+            self.symbol_table.insert(data)
+            print("\nArray DeclInit:\n", self.symbol_table.symbol_table, "\n")
+            return None
+        
+        else:
+            # Need to check if the variable is already declared in the current scope
+            data = self.symbol_table.lookup_current_scope(node.children[2])
+
+            if data != None:
+                raise Exception(
+                    f"Variable {node.children[2]} already declared in the current scope"
+                )
+
+            type_mapping = {'int': 0, 'string': '', 'bool': 'false'}
+            req_type = node.children[1]
+
+            # By default each of the values needs to be set to zero
+            values = []
+            length = int(node.children[0].value)
+            for i in range(length):
+                values.append(type_mapping[req_type])
+
+            # Collecting the necessary information, for the symbol table
+            data = {
+                'type'      : 'array',
+                'token'     : node.children[2],
+                'value'     : values,
+                'data_type' : self.get_data_type(node.children[1])
+            }
+            self.symbol_table.insert(data)
+            print("\nArray Decl:\n", self.symbol_table.symbol_table, "\n")
+            return None
+        
+
+    def node_TupleDeclaration(self, node):
+        '''
+            Structure in AST: ['datatype', 'identifier', 'list_of_values']
+        '''
+
+        # Need to check if the variable is already declared in the current scope
+        data = self.symbol_table.lookup_current_scope(node.children[1])
+
+        type_mapping = {'int': 'NUMBER', 'string': 'STRING', 'bool': 'BOOLEAN'}
+        req_type = type_mapping[node.children[0].value]
+        
+        values = []
+        for i in range(2, len(node.children)):
+            data = node.children[i]
+            if data.type != req_type:
+                raise Exception(
+                    f"Type mismatch: {data.type} is not of type {req_type}"
+                )
+            
+            values.append(data.value)
+
+        data = {
+            'type'      : 'tuple',
+            'token'     : node.children[1],
+            'value'     : values,
+            'data_type' : req_type
+        }
+        self.symbol_table.insert(data)
+        print("\nTuple Decl:\n", self.symbol_table.symbol_table, "\n")
+        return None
+    
+
     # PrintStatement can print datatypes of the type NUMBER, STRING, and BOOLEAN
     # declared variables and return values of functions
     def node_PrintStatement(self, node):
@@ -279,7 +384,7 @@ class sementicAnalyzer(nodeVisitor):
 
         # Need to increment the scope
         self.symbol_table.incremnet_scope()
-
+        flag_from_identifier = False
         # If it is a non-terminal node then need to recursively visit it
         if type(node.children[1]) != lark.lexer.Token:
             condition = self.visit(node.children[1])
@@ -293,13 +398,25 @@ class sementicAnalyzer(nodeVisitor):
                     f"Variable '{node.children[1]}' is not declared"
                 )
             condition = data['data_type']
+            flag_from_identifier = True
 
         # Here, it is checking for the simplest case i.e., NUMBERS, and BOOLEAN value
         else:
-            condition = node.children[1].type
+            condition = node.children[1]
+
+        print("condition:", condition)
+        print("condition type:", condition.type)
+        print("flag:", flag_from_identifier)
 
         # The condition should be of the type BOOLEAN or NUMBER after evaluating it
-        if condition != 'BOOLEAN' and condition != 'NUMBER':
+        if (flag_from_identifier == True):
+            if condition != 'BOOLEAN' or condition != 'NUMBER':
+                raise Exception(f"Invalid data type '{condition.type}', for the condition")
+        elif condition.type == 'BOOLEAN':
+            pass
+        elif condition.type == 'NUMBER':
+            pass
+        else:
             raise Exception(f"Invalid data type '{condition}', for the condition")
 
         # Now visit the statement block
@@ -607,21 +724,134 @@ class sementicAnalyzer(nodeVisitor):
     # TODO: Need to revisit it. There are some bugs
     def node_Condition(self, node):
         '''
-            Structure in AST: ['value', 'operator', 'value']
+            Structure in AST: ['value', 'and', 'value']
         '''
         # The values that can be compared are of the type BOOLEAN only
         if type(node.children[0]) == lark.lexer.Token:
             left = node.children[0]
         else:
             left  = self.visit(node.children[0])
+
         if type(node.children[2]) == lark.lexer.Token:
             right = node.children[2]
         else:
             right = self.visit(node.children[2])
+        
 
-        print(left)
-        # if left.type != "BOOLEAN" or right.type != "BOOLEAN":
-        #     raise Exception(f"Type mismatch: {left.type} and {right.type}")
-        # return node.children[0].type
-        return None
+        if left.type != "BOOLEAN" or right.type != "BOOLEAN":
+            raise Exception(f"Type mismatch: {left.type} and {right.type}")
+        
+        return left
     
+
+    def node_Condition1(self, node):
+        '''
+            Structure in AST: ['value', 'or', 'value']
+        '''
+        # The values that can be compared are of the type BOOLEAN only
+        if type(node.children[0]) == lark.lexer.Token:
+            left = node.children[0]
+        else:
+            left  = self.visit(node.children[0])
+
+        if type(node.children[2]) == lark.lexer.Token:
+            right = node.children[2]
+        else:
+            right = self.visit(node.children[2])
+        
+
+        if left.type != "BOOLEAN" or right.type != "BOOLEAN":
+            raise Exception(f"Type mismatch: {left.type} and {right.type}")
+        
+        return left
+    
+
+    def node_Condition2(self, node):
+        '''
+            Structure in AST: ['not', 'boolean value']
+        '''
+        # The values that can be added are of the type NUMBER only
+        if type(node.children[1]) == lark.lexer.Token:
+            value = node.children[1]
+        else:
+            value  = self.visit(node.children[1])
+
+        if value.type != "BOOLEAN":
+            raise Exception(f"Type mismatch: {value.type}")
+        return value
+    
+    def node_Condition3(self, node):
+        '''
+            Structure in AST: ['Minus/unary_not', 'value']
+            Structure in ASt: ['value', 'Comparison_operator', 'value']
+        '''
+        if len(node.children) == 2:
+            if type(node.children[1]) == lark.lexer.Token:
+                value = node.children[1]
+            else:
+                value  = self.visit(node.children[1])
+
+            if value.type != "NUMBER":
+                raise Exception(f"Type mismatch: {value.type}")
+            return value
+        else:
+            if type(node.children[0]) == lark.lexer.Token:
+                left = node.children[0]
+            else:
+                left  = self.visit(node.children[0])
+
+            if type(node.children[2]) == lark.lexer.Token:
+                right = node.children[2]
+            else:
+                right = self.visit(node.children[2])
+            
+            if left.type == "NUMBER" or left.type == "BOOLEAN":
+                if left.type != right.type:
+                    raise Exception(f"Type mismatch: {left.type} and {right.type}")
+                
+            return left
+
+    def node_AddOperand(self, node):
+        '''
+            Structure in AST: ['value', '+', 'value']
+        '''
+        # The values that can be added are of the type NUMBER only
+        if type(node.children[0]) == lark.lexer.Token:
+            left = node.children[0]
+        else:
+            left  = self.visit(node.children[0])
+
+        if type(node.children[2]) == lark.lexer.Token:
+            right = node.children[2]
+        else:
+            right = self.visit(node.children[2])
+        
+
+        if left.type != "NUMBER" or right.type != "NUMBER":
+            raise Exception(f"Type mismatch: {left.type} and {right.type}")
+        
+        return left
+    
+
+    def node_MulOperand(self, node):
+        '''
+            Structure in AST: ['value', '*', 'value']
+        '''
+        # The values that can be multiplied are of the type NUMBER only
+        if type(node.children[0]) == lark.lexer.Token:
+            left = node.children[0]
+        else:
+            left  = self.visit(node.children[0])
+
+        if type(node.children[2]) == lark.lexer.Token:
+            right = node.children[2]
+        else:
+            right = self.visit(node.children[2])
+        
+
+        if left.type != "NUMBER" or right.type != "NUMBER":
+            raise Exception(f"Type mismatch: {left.type} and {right.type}")
+        
+        return left
+
+   
