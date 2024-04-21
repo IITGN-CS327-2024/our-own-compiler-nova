@@ -164,8 +164,10 @@ class sementicAnalyzer(nodeVisitor):
             'type'      : 'variable',
             'token'     : node.children[1],
             'value'     : node.children[3],
-            'data_type' : self.get_data_type(node.children[0])
+            # 'data_type' : self.get_data_type(node.children[0])
+            'data_type'   : node.children[0]
         }
+
 
         ###############################
         ####### Check for the type######
@@ -184,14 +186,27 @@ class sementicAnalyzer(nodeVisitor):
         ###############################
         ###############################
         self.symbol_table.insert(data)
-        print("\nInside VariableDeclInit:\n", self.symbol_table.symbol_table, "\n")
+        # print("\nInside VariableDeclInit:\n", self.symbol_table.symbol_table, "\n")
 
         # Need to verify the type of the assigned value with the type declaration of the variable
         assigned_value = data['value']
         if type(assigned_value) != lark.lexer.Token:
             assigned_value = self.visit(assigned_value)
         
-        if assigned_value.type != data['data_type']:
+        # if the assigned value is a expression 
+        # then the assigned_value would be DATA_TYPE
+        if assigned_value.type == data['data_type'].type:
+            if assigned_value.value != data['data_type'].value:
+                raise Exception(
+                    f"Type mismatch: {assigned_value} is not of type {data['data_type']}"
+                    )
+            return None
+
+ 
+
+        # this is for simple cases like assigning only a single number, string, or boolean
+        type_mapping = {'NUMBER': 'int', 'STRING': 'string', 'BOOLEAN': 'bool'}
+        if type_mapping[assigned_value.type] != data['data_type']:
             raise Exception(
                 f"Type mismatch: {assigned_value} is not of type {data['data_type']}")
         else:
@@ -490,6 +505,7 @@ class sementicAnalyzer(nodeVisitor):
         return None
 
 
+    # TODO: Need to save a record for none parameter
     def node_FunctionDeclaration(self, node):
         '''
             Assuming the structure of node.children for a function declaration is:
@@ -517,15 +533,20 @@ class sementicAnalyzer(nodeVisitor):
             for i in range(2, len(node.children) - 3, 2):
                 param_type_token = node.children[i]  # Parameter type
                 param_name_token = node.children[i + 1]  # Parameter name
-                param_type = self.get_data_type(param_type_token)
-                param_name = param_name_token.value
+                # print(isinstance(param_type_token, lark.lexer.Token), param_name_token)
+                # param_type = self.get_data_type(param_type_token)
+                # param_name = param_name_token.value
 
-                parameters.append(param_name)
-                parameters_type.append(param_type)
+                # parameters_type.append(param_type)
+                # parameters.append(param_name)
+
+                parameters_type.append(param_type_token)
+                parameters.append(param_name_token)
 
             # Extracting return type
             return_type_token = node.children[-2]  # The second-to-last child is the return type
-            return_type = self.get_data_type(return_type_token)
+            # return_type = self.get_data_type(return_type_token)
+            return_type = return_type_token
 
             # Constructing the function record for the symbol table
             function_data = {
@@ -538,14 +559,16 @@ class sementicAnalyzer(nodeVisitor):
 
         # Inserting the function declaration into the symbol table
         self.symbol_table.insert(function_data)
-        # print("inside func declaration:", self.symbol_table.symbol_table)
+        print("Inside func declaration:", self.symbol_table.symbol_table)
 
         # Incrementing scope for the function body
         self.symbol_table.incremnet_scope()
 
         # Visiting the function body
         function_body = node.children[-1]  # The last child is the function body
-        return_type_in_body = self.visit(function_body)
+        return_type_in_body = self.visit(function_body) # it should be of the type lark.lexer.Token
+
+        print("return type in body:", return_type_in_body)
 
         # Checking the type of return_value with the function signature
         # Case-1: Function does not return anything but the function body returns something
@@ -679,17 +702,19 @@ class sementicAnalyzer(nodeVisitor):
                         data, i = data
                         return_value = data['parameters_type'][i]
                 else:
-                    return_value = data['data_type'].type
+                    return_value = data['data_type']
             else:
-                return_value = data['data_type'].type
+                return_value = data['data_type']
 
         elif node.children[1].type == 'NUMBER' or node.children[1].type == 'STRING' or node.children[1].type == 'BOOLEAN':
-            return_value = node.children[1].type
+            return_value.type = node.children[1].type
 
         # By the it has to be one of the primitive data types
         # elif node.children[1].type != 'NUMBER' and node.children[1].type != 'STRING' and node.children[1].type != 'BOOLEAN':
         else:
             raise Exception(f"Invalid data type {node.children[1].type}, to return")
+        
+        print("Inside return stm:", return_value, isinstance(return_value, lark.lexer.Token))
         return return_value
     
 
@@ -874,9 +899,9 @@ class sementicAnalyzer(nodeVisitor):
 
     def node_AddOperand(self, node):
         '''
-            Structure in AST: ['value', '+', 'value']
+            Structure in AST: ['value', '+/-', 'value']
         '''
-        print("symbol table:", self.symbol_table.symbol_table)
+        # print("symbol table:", self.symbol_table.symbol_table)
         # The values that can be added are of the type NUMBER only
         if type(node.children[0]) == lark.lexer.Token:
             left = node.children[0]
@@ -888,8 +913,6 @@ class sementicAnalyzer(nodeVisitor):
         else:
             right = self.visit(node.children[2])
         
-
-        print(left, right)
 
 
         if left.type == 'IDENTIFIER':
@@ -929,22 +952,22 @@ class sementicAnalyzer(nodeVisitor):
             else:
                 right = data['data_type']
 
-        if type(left) == str and type(right) == str:
-            if left != right:
-                raise Exception(f"Type mismatch: {left} and {right}")   
+        # print("left:", left, "right:", right)
 
-        elif left.type != "NUMBER" or right.type != "NUMBER":
+        if (left.type == "NUMBER" and right.type == "NUMBER") or (left.value == "int" and right.value == "int"):
+            return left
+        elif (left.type == "NUMBER" and right.value == "int") or (left.value == "int" and right.type == "NUMBER"):
+            return left 
+        else:
             raise Exception(f"Type mismatch: {left.type} and {right.type}")
-        
-        print("returned:", left)
-        return left
     
 
     def node_MulOperand(self, node):
         '''
-            Structure in AST: ['value', '*', 'value']
+            Structure in AST: ['value', '*//', 'value']
         '''
-        # The values that can be multiplied are of the type NUMBER only
+        # print("symbol table:", self.symbol_table.symbol_table)
+        # The values that can be added are of the type NUMBER only
         if type(node.children[0]) == lark.lexer.Token:
             left = node.children[0]
         else:
@@ -956,9 +979,51 @@ class sementicAnalyzer(nodeVisitor):
             right = self.visit(node.children[2])
         
 
-        if left.type != "NUMBER" or right.type != "NUMBER":
+
+        if left.type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_current_scope(left)
+            if data == None:
+                data = self.symbol_table.lookup_all_prev_scopes(left)
+                if data == None:
+                    data = self.symbol_table.lookup_prev_func_scope(left)
+                    if data == None:
+                        raise Exception(
+                            f"Variable '{left}' not declared"
+                        )
+                    else:
+                        data, i = data
+                        left = data['parameters_type'][i]
+                else:
+                    left = data['data_type']
+            else:
+                left = data['data_type']
+
+
+        if right.type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_current_scope(right)
+            if data == None:
+                data = self.symbol_table.lookup_all_prev_scopes(right)
+                if data == None:
+                    data = self.symbol_table.lookup_prev_func_scope(right)
+                    if data == None:
+                        raise Exception(
+                            f"Variable '{right}' not declared"
+                        )
+                    else:
+                        data, i = data
+                        right = data['parameters_type'][i]
+                else:
+                    right = data['data_type']
+            else:
+                right = data['data_type']
+
+        # print("left:", left, "right:", right)
+
+        if (left.type == "NUMBER" and right.type == "NUMBER") or (left.value == "int" and right.value == "int"):
+            return left
+        elif (left.type == "NUMBER" and right.value == "int") or (left.value == "int" and right.type == "NUMBER"):
+            return left 
+        else:
             raise Exception(f"Type mismatch: {left.type} and {right.type}")
-        
-        return left
 
    

@@ -83,10 +83,14 @@ class nodeVisitor:
 class codeGenerator(nodeVisitor):
     def __init__(self) -> None:
         self.symbol_table = symbolTable()
+        self.final_str = ''
 
     def node_Start(self, node):
         for child in node.children:
             self.visit(child)
+
+        with open('../generated_code/code_output.c', 'w') as f:
+            f.write(self.final_str)
 
     def node_Statement(self, node):
         
@@ -117,25 +121,25 @@ class codeGenerator(nodeVisitor):
         '''
         function_name = node.children[1]
         return_type = node.children[-2]
-        print(f'{return_type} {function_name} (', end="")
+        self.final_str += f'{return_type} {function_name} ('
         
         # Filling up the parameters of the function
         stop = len(node.children) - 3
         for i in range(2, stop, 2):
             parameter_type = node.children[i]
             parameter = node.children[i + 1]
-            if i == stop - 2:
-                print(f'{parameter_type} {parameter}', end="")
+            if i == stop - 1:
+                self.final_str += f'{parameter_type} {parameter}'
             else:   
-                print(f'{parameter_type} {parameter}, ', end="")
-        print(')')
-        print('{')
+                self.final_str += f'{parameter_type} {parameter},'
+        self.final_str += ')\n'
+        self.final_str += '{\n'
 
         # Visiting the function body
         fn_body = self.visit(node.children[-1])
 
-        print(fn_body)
-        print('}')
+        self.final_str += fn_body + '\n'
+        self.final_str += '}\n\n'
 
         return None
         
@@ -176,31 +180,35 @@ class codeGenerator(nodeVisitor):
         '''
             Structure in AST: ['value', '+', 'value']
         '''
-        print(node.children[0], node.children[2])
         if type(node.children[0]) != lark.lexer.Token:
             left = self.visit(node.children[0])
         else:
-            left = node.children[0]
+            left = node.children[0].value
 
         if type(node.children[2]) != lark.lexer.Token:
             right = self.visit(node.children[2])
         else:
-            right = node.children[2]
+            right = node.children[2].value
 
-        return f'{left.value} + {right.value}'
+        operation = node.children[1].value
+
+        return f'{left} {operation} {right}'
     
-    def node_SubOperand(self, node):
+    
+    def node_MulOperand(self, node):
         '''
-            Structure in AST: ['value', '-', 'value']
+            Structure in AST: ['value', '+', 'value']
         '''
         if type(node.children[0]) != lark.lexer.Token:
             left = self.visit(node.children[0])
         else:
-            left = node.children[0]
+            left = node.children[0].value
 
         if type(node.children[2]) != lark.lexer.Token:
             right = self.visit(node.children[2])
         else:
-            right = node.children[2]
+            right = node.children[2].value
 
-        return f'{left.value} - {right.value}'
+        operation = node.children[1].value
+
+        return f'{left} {operation} {right}'
