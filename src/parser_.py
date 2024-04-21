@@ -13,6 +13,7 @@ from lexer import lexer
 from typing import List
 from graphviz import Digraph
 from type_checker import sementicAnalyzer
+from code_generation import codeGenerator
 
 
 this_module = sys.modules[__name__]
@@ -326,3 +327,6 @@ if __name__ == "__main__":
 
     sementic_analyzer = sementicAnalyzer()
     sementic_analyzer.node_Start(ast)
+
+    code_generation = codeGenerator()
+    code_generation.node_Start(ast)

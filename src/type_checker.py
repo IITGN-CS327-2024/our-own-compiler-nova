@@ -34,31 +34,46 @@ class symbolTable:
         # The inner list would contain the data of the current scope
         self.symbol_table = [[]]
 
-    def lookup_all_prev_scopes(self, token):
-        # last_index = len(self.symbol_table) - 1
-        # # Iterating from the last scope to the first scope
-        # for i in range(last_index - 1, -1, -1):
-        #     if self.symbol_table[i][0]['token'].value == token:
-        #         return self.symbol_table[i][0]
-        # return None
+    def lookup_all_prev_scopes(self, token, type=None):
         last_index = len(self.symbol_table) - 1
         # Iterating from the last (innermost) scope to the first (outermost) scope
-        for i in range(last_index, -1, -1):  # Fix: include the last index as well
+        for i in range(last_index, -1, -1):
             # Check each entry in the current scope
             for entry in self.symbol_table[i]:
                 if 'token' in entry and entry['token'].value == token:  # Safely access 'token'
                     return entry
         return None
+    
+    def lookup_prev_func_scope(self, token, type='function'):
+        second_last_index = len(self.symbol_table) - 2
+        for i in range(second_last_index, -1, -1):
+            for entry in self.symbol_table[i]:
+                if entry['type'] == type:
+
+                    # Now, need to loop over the parameters of the function
+                    for i in range(len(entry['parameters'])):
+                        if entry['parameters'][i] == token:
+                            return entry, i
+                        
+        return None, 0
+                    
 
     # TODO: Need to change it
     # The last entry in the symbol table would be the current scope
-    def lookup_current_scope(self, token):
+    def lookup_current_scope(self, token, type=None):
         last_index = len(self.symbol_table) - 1
-        for data in self.symbol_table[last_index]:
-
-            if data['token'] == token:
-                return data
-        return None
+        if type == None:
+            for data in self.symbol_table[last_index]:
+                if data['token'] == token:
+                    return data
+            return None
+        elif type == 'Function':
+            for data in self.symbol_table[last_index]:
+                if data['type'] == type:
+                    for i in range(len(data['parameters'])):
+                        if data['parameters'][i] == token:
+                            return data, i
+            return None
 
     def incremnet_scope(self):
         self.symbol_table.append([])
@@ -224,7 +239,7 @@ class sementicAnalyzer(nodeVisitor):
             'type'      : 'variable',
             'token'     : node.children[0],
             'value'     : node.children[2],
-            'data)type' : data['type']
+            'data_type' : data['type']
         }
         self.symbol_table.insert(data)
         print("\nVarible Init:\n", self.symbol_table.symbol_table, "\n")
@@ -640,15 +655,33 @@ class sementicAnalyzer(nodeVisitor):
                     f"Function {node.children[1].children[0]} does not return any value. Return type is void."
                 )
             
+        # elif node.children[1].type == 'IDENTIFIER':
+        #     data = self.symbol_table.lookup_current_scope(node.children[1])
+        #     if data == None:
+        #         data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
+        #         if data == None:
+        #             raise Exception(
+        #                 f"Variable '{node.children[1]}' not declared"
+        #             )
+        #     return_value = data['data_type']
+
         elif node.children[1].type == 'IDENTIFIER':
             data = self.symbol_table.lookup_current_scope(node.children[1])
             if data == None:
                 data = self.symbol_table.lookup_all_prev_scopes(node.children[1])
                 if data == None:
-                    raise Exception(
-                        f"Variable '{node.children[1]}' not declared"
-                    )
-            return_value = data['data_type']
+                    data = self.symbol_table.lookup_prev_func_scope(node.children[1])
+                    if data == None:
+                        raise Exception(
+                            f"Variable '{node.children[1]}' not declared"
+                        )
+                    else:
+                        data, i = data
+                        return_value = data['parameters_type'][i]
+                else:
+                    return_value = data['data_type'].type
+            else:
+                return_value = data['data_type'].type
 
         elif node.children[1].type == 'NUMBER' or node.children[1].type == 'STRING' or node.children[1].type == 'BOOLEAN':
             return_value = node.children[1].type
@@ -658,6 +691,34 @@ class sementicAnalyzer(nodeVisitor):
         else:
             raise Exception(f"Invalid data type {node.children[1].type}, to return")
         return return_value
+    
+
+        # if right.type == 'IDENTIFIER':
+        #     data = self.symbol_table.lookup_current_scope(right)
+        #     if data == None:
+        #         data = self.symbol_table.lookup_all_prev_scopes(right)
+        #         if data == None:
+        #             data = self.symbol_table.lookup_prev_func_scope(right)
+        #             if data == None:
+        #                 raise Exception(
+        #                     f"Variable '{right}' not declared"
+        #                 )
+        #             else:
+        #                 data, i = data
+        #                 right = data['parameters_type'][i]
+        #         else:
+        #             right = data['data_type']
+        #     else:
+        #         right = data['data_type']
+
+        # if type(left) == str and type(right) == str:
+        #     if left != right:
+        #         raise Exception(f"Type mismatch: {left} and {right}")
+
+        # elif left.type != "NUMBER" or right.type != "NUMBER":
+        #     raise Exception(f"Type mismatch: {left.type} and {right.type}")
+        
+        # return left
     
 
     def node_TryCatchStatement(self, node):
@@ -815,6 +876,7 @@ class sementicAnalyzer(nodeVisitor):
         '''
             Structure in AST: ['value', '+', 'value']
         '''
+        print("symbol table:", self.symbol_table.symbol_table)
         # The values that can be added are of the type NUMBER only
         if type(node.children[0]) == lark.lexer.Token:
             left = node.children[0]
@@ -827,9 +889,54 @@ class sementicAnalyzer(nodeVisitor):
             right = self.visit(node.children[2])
         
 
-        if left.type != "NUMBER" or right.type != "NUMBER":
+        print(left, right)
+
+
+        if left.type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_current_scope(left)
+            if data == None:
+                data = self.symbol_table.lookup_all_prev_scopes(left)
+                if data == None:
+                    data = self.symbol_table.lookup_prev_func_scope(left)
+                    if data == None:
+                        raise Exception(
+                            f"Variable '{left}' not declared"
+                        )
+                    else:
+                        data, i = data
+                        left = data['parameters_type'][i]
+                else:
+                    left = data['data_type']
+            else:
+                left = data['data_type']
+
+
+        if right.type == 'IDENTIFIER':
+            data = self.symbol_table.lookup_current_scope(right)
+            if data == None:
+                data = self.symbol_table.lookup_all_prev_scopes(right)
+                if data == None:
+                    data = self.symbol_table.lookup_prev_func_scope(right)
+                    if data == None:
+                        raise Exception(
+                            f"Variable '{right}' not declared"
+                        )
+                    else:
+                        data, i = data
+                        right = data['parameters_type'][i]
+                else:
+                    right = data['data_type']
+            else:
+                right = data['data_type']
+
+        if type(left) == str and type(right) == str:
+            if left != right:
+                raise Exception(f"Type mismatch: {left} and {right}")   
+
+        elif left.type != "NUMBER" or right.type != "NUMBER":
             raise Exception(f"Type mismatch: {left.type} and {right.type}")
         
+        print("returned:", left)
         return left
     
 
