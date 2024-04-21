@@ -1,0 +1,25 @@
+fn add(int a, int b) :: int {
+    var int c = 7;
+    return : a + b + c;
+};
+
+#variable:
+#    - type: variable
+#    - token: name of the variable
+#    - value: value to be stored
+#    - data_type: data type of the value
+#
+#Array:
+#    - type: array
+#    - token: name of the array
+#    - value: list of values
+#    - data_type: type of each value
+#
+#Tuple: Same as array
+#
+#Function:
+#    - type: function
+#    - token: name of the function
+#    - parameters: list of variables name
+#    - parameters_type: list of variable types
+#    - return_type: 
